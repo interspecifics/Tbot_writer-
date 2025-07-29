@@ -90,18 +90,25 @@ The script will automatically:
 
 ### Windows Installation
 
-1. **Download the project** and navigate to the directory in Command Prompt:
+1. **Download the project** and navigate to the directory:
    ```cmd
    cd C:\path\to\Tbot_writer-
    ```
 
-2. **Run the installation script**:
+2. **Run the installation script** as Administrator:
+
+   **For PowerShell (recommended):**
+   ```powershell
+   .\install_windows.ps1
+   ```
+
+   **For Command Prompt:**
    ```cmd
    install_windows_fixed.bat
    ```
 
 The script will automatically:
-- Check for Python installation
+- **Install Python** (if not found) via winget or direct download
 - Install required Python packages
 - Download and install Ollama
 - Download AI models
@@ -128,6 +135,10 @@ The script will automatically:
    ```
 
 2. **Run the writer**:
+   ```powershell
+   .\start_writer.ps1
+   ```
+   or:
    ```cmd
    start_writer.bat
    ```
@@ -238,6 +249,13 @@ The AI will use these as **style inspiration only** - it won't copy content but 
 6. **AI copying reference content**:
    - Reference materials are for style inspiration only
    - The AI is instructed not to copy content
+
+### Windows-Specific Issues
+
+- **Python not found**: Installer now attempts automatic Python installation via winget or direct download
+- **Permission errors**: Run installer as Administrator
+- **VS Code terminal issues**: Use Command Prompt instead of PowerShell
+- **Package installation fails**: Try updating pip first: `python -m pip install --upgrade pip`
 
 ### System Requirements
 

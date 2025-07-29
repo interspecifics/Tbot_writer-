@@ -28,14 +28,144 @@ REM Check if Python is installed
 echo [INFO] Checking Python installation...
 python --version >nul 2>&1
 if %errorlevel% neq 0 (
-    echo [ERROR] Python not found. Please install Python from https://python.org
-    echo Make sure to check 'Add Python to PATH' during installation
-    echo Download Python from: https://www.python.org/downloads/
-    exit /b 1
-) else (
-    echo [SUCCESS] Python already installed!
-    python --version
-)
+    echo [INFO] Python not found. Attempting automatic installation...
+    echo.
+    
+    REM Check if we can download files
+    echo [INFO] Testing download capability...
+    powershell -Command "Test-NetConnection -ComputerName python.org -Port 443" >nul 2>&1
+    if %errorlevel% neq 0 (
+        echo [ERROR] No internet connection. Cannot download Python automatically.
+        echo.
+        echo ========================================
+        echo MANUAL INSTALLATION REQUIRED:
+        echo ========================================
+        echo 1. Download Python from: https://python.org/downloads/
+        echo 2. Run the installer as Administrator
+        echo 3. IMPORTANT: Check "Add Python to PATH" during installation
+        echo 4. IMPORTANT: Check "Install for all users" 
+        echo 5. Complete the installation and restart your computer
+        echo 6. Run this script again
+        echo.
+        echo Press any key to open Python download page...
+        pause >nul
+        start https://python.org/downloads/
+        exit /b 1
+    )
+    
+    REM Try winget first (Windows Package Manager - easiest method)
+    echo [INFO] Trying winget installation (Windows Package Manager)...
+    winget --version >nul 2>&1
+    if %errorlevel% equ 0 (
+        echo [INFO] winget found. Installing Python via winget...
+        winget install Python.Python.3.11 --accept-source-agreements --accept-package-agreements
+        if %errorlevel% equ 0 (
+            echo [SUCCESS] Python installed via winget!
+            echo [INFO] Refreshing environment variables...
+            call refreshenv >nul 2>&1
+            python --version >nul 2>&1
+            if %errorlevel% equ 0 (
+                echo [SUCCESS] Python is now available!
+                python --version
+                goto :python_installed
+            )
+        ) else (
+            echo [INFO] winget installation failed, trying direct download...
+        )
+    ) else (
+        echo [INFO] winget not available, trying direct download...
+    )
+    
+    REM Try to detect Windows architecture
+    echo [INFO] Detecting system architecture...
+    if "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
+        set "ARCH=amd64"
+        echo [INFO] Detected 64-bit system
+    ) else if "%PROCESSOR_ARCHITECTURE%"=="x86" (
+        set "ARCH=win32"
+        echo [INFO] Detected 32-bit system
+    ) else (
+        set "ARCH=amd64"
+        echo [INFO] Assuming 64-bit system
+    )
+    
+    REM Download Python installer
+    echo [INFO] Downloading Python installer...
+    set "PYTHON_VERSION=3.11.8"
+    set "PYTHON_URL=https://www.python.org/ftp/python/%PYTHON_VERSION%/python-%PYTHON_VERSION%-%ARCH%.exe"
+    set "PYTHON_INSTALLER=python-installer.exe"
+    
+    echo [INFO] Downloading from: %PYTHON_URL%
+    powershell -Command "try { Invoke-WebRequest -Uri '%PYTHON_URL%' -OutFile '%PYTHON_INSTALLER%' -UseBasicParsing; Write-Host 'Download successful' } catch { Write-Host 'Download failed: ' + $_.Exception.Message; exit 1 }"
+    
+    if not exist "%PYTHON_INSTALLER%" (
+        echo [ERROR] Failed to download Python installer.
+        echo.
+        echo ========================================
+        echo MANUAL INSTALLATION REQUIRED:
+        echo ========================================
+        echo 1. Download Python from: https://python.org/downloads/
+        echo 2. Run the installer as Administrator
+        echo 3. IMPORTANT: Check "Add Python to PATH" during installation
+        echo 4. IMPORTANT: Check "Install for all users" 
+        echo 5. Complete the installation and restart your computer
+        echo 6. Run this script again
+        echo.
+        echo Press any key to open Python download page...
+        pause >nul
+        start https://python.org/downloads/
+        exit /b 1
+    )
+    
+    echo [SUCCESS] Python installer downloaded!
+    echo [INFO] Installing Python...
+    echo [INFO] This may take a few minutes...
+    
+    REM Install Python with silent mode and PATH addition
+    "%PYTHON_INSTALLER%" /quiet InstallAllUsers=1 PrependPath=1 Include_test=0
+    
+    REM Wait for installation
+    echo [INFO] Waiting for installation to complete...
+    timeout /t 30 /nobreak >nul
+    
+    REM Clean up installer
+    if exist "%PYTHON_INSTALLER%" del "%PYTHON_INSTALLER%"
+    
+    REM Refresh environment variables
+    echo [INFO] Refreshing environment variables...
+    call refreshenv >nul 2>&1
+    
+    REM Test if Python is now available
+    echo [INFO] Testing Python installation...
+    python --version >nul 2>&1
+    if %errorlevel% neq 0 (
+        echo [WARNING] Python installation might not be complete.
+        echo Please restart your computer and run this script again.
+        echo.
+        echo ========================================
+        echo MANUAL INSTALLATION REQUIRED:
+        echo ========================================
+        echo 1. Download Python from: https://python.org/downloads/
+        echo 2. Run the installer as Administrator
+        echo 3. IMPORTANT: Check "Add Python to PATH" during installation
+        echo 4. IMPORTANT: Check "Install for all users" 
+        echo 5. Complete the installation and restart your computer
+        echo 6. Run this script again
+        echo.
+        echo Press any key to open Python download page...
+        pause >nul
+        start https://python.org/downloads/
+        exit /b 1
+    ) else (
+        echo [SUCCESS] Python installed successfully!
+        python --version
+    )
+    ) else (
+        echo [SUCCESS] Python already installed!
+        python --version
+    )
+    
+:python_installed
 
 REM Check if pip is installed
 echo [INFO] Checking pip installation...
@@ -53,14 +183,31 @@ REM Install required Python packages
 echo [INFO] Installing Python dependencies...
 pip install openai requests PyPDF2 python-docx
 if %errorlevel% neq 0 (
-    echo [ERROR] Failed to install Python packages. Trying with --user flag...
+    echo [WARNING] Failed to install packages globally. Trying with --user flag...
     pip install --user openai requests PyPDF2 python-docx
     if %errorlevel% neq 0 (
-        echo [ERROR] Failed to install packages. Please check your internet connection.
-        exit /b 1
+        echo [ERROR] Failed to install packages.
+        echo.
+        echo ========================================
+        echo TROUBLESHOOTING:
+        echo ========================================
+        echo 1. Check your internet connection
+        echo 2. Try running as Administrator
+        echo 3. Try updating pip: python -m pip install --upgrade pip
+        echo 4. Try installing packages one by one:
+        echo    pip install openai
+        echo    pip install requests
+        echo    pip install PyPDF2
+        echo    pip install python-docx
+        echo.
+        echo Press any key to continue anyway...
+        pause >nul
+    ) else (
+        echo [SUCCESS] Python dependencies installed with --user flag!
     )
+) else (
+    echo [SUCCESS] Python dependencies installed!
 )
-echo [SUCCESS] Python dependencies installed!
 
 REM Check if curl is available
 echo [INFO] Checking curl availability...
@@ -352,6 +499,133 @@ echo - **python-docx**: Word document text extraction
 
 echo [SUCCESS] README.md created!
 
+REM Create start script for Windows
+echo [INFO] Creating start script...
+(
+echo @echo off
+echo echo Starting GPT Neo-Style Text Co-Writer...
+echo echo.
+echo.
+echo REM Check if Python is available
+echo python --version ^>nul 2^>^&1
+echo if %%errorlevel%% neq 0 ^(
+echo     echo [ERROR] Python not found!
+echo     echo Please install Python from https://python.org
+echo     echo Make sure to check 'Add Python to PATH' during installation
+echo     pause
+echo     exit /b 1
+echo ^)
+echo.
+echo REM Check if the main script exists
+echo if not exist "text_co_writer.py" ^(
+echo     echo [ERROR] text_co_writer.py not found!
+echo     echo Please run this script from the project directory.
+echo     pause
+echo     exit /b 1
+echo ^)
+echo.
+echo REM Run the text co-writer
+echo echo [INFO] Starting the text co-writer...
+echo python text_co_writer.py
+echo.
+echo REM If the script exits, pause so user can see any error messages
+echo if %%errorlevel%% neq 0 ^(
+echo     echo.
+echo     echo [ERROR] The program exited with an error.
+echo     echo Check the error message above for details.
+echo     pause
+echo ^) else ^(
+echo     echo.
+echo     echo [INFO] Program finished successfully.
+echo     pause
+echo ^)
+) > start_writer.bat
+echo [SUCCESS] start_writer.bat created!
+
+REM Create troubleshooting guide
+echo [INFO] Creating troubleshooting guide...
+(
+echo # Windows Troubleshooting Guide
+echo.
+echo ## Common Issues and Solutions
+echo.
+echo ### 1. Python Not Found
+echo.
+echo **Error:** `[ERROR] Python not found!`
+echo.
+echo **Solution:**
+echo 1. Download Python from https://python.org/downloads/
+echo 2. **IMPORTANT:** Check "Add Python to PATH" during installation
+echo 3. **IMPORTANT:** Check "Install for all users"
+echo 4. Restart your computer
+echo 5. Run the installer again
+echo.
+echo **Alternative:** Install from Microsoft Store
+echo 1. Open Microsoft Store
+echo 2. Search for "Python 3.11" or "Python 3.12"
+echo 3. Install the latest version
+echo.
+echo ### 2. Permission Errors
+echo.
+echo **Error:** `Permission denied` or `Access denied`
+echo.
+echo **Solution:**
+echo 1. Right-click on `install_windows_fixed.bat`
+echo 2. Select "Run as administrator"
+echo 3. Click "Yes" when prompted
+echo.
+echo ### 3. Package Installation Fails
+echo.
+echo **Error:** `Failed to install packages`
+echo.
+echo **Solutions:**
+echo 1. **Update pip first:**
+echo    ```cmd
+echo    python -m pip install --upgrade pip
+echo    ```
+echo.
+echo 2. **Install packages one by one:**
+echo    ```cmd
+echo    pip install openai
+echo    pip install requests
+echo    pip install PyPDF2
+echo    pip install python-docx
+echo    ```
+echo.
+echo 3. **Try with --user flag:**
+echo    ```cmd
+echo    pip install --user openai requests PyPDF2 python-docx
+echo    ```
+echo.
+echo 4. **Check internet connection**
+echo.
+echo ### 4. VS Code Terminal Issues
+echo.
+echo **Problem:** Script stops at first echo
+echo.
+echo **Solutions:**
+echo 1. **Use Command Prompt instead of PowerShell:**
+echo    - Press `Win + R`
+echo    - Type `cmd`
+echo    - Navigate to project folder
+echo    - Run `install_windows_fixed.bat`
+echo.
+echo 2. **Run as Administrator in VS Code:**
+echo    - Right-click VS Code
+echo    - Select "Run as administrator"
+echo.
+echo ## Getting Help
+echo.
+echo If you're still having issues:
+echo.
+echo 1. **Check the error message carefully**
+echo 2. **Try running as Administrator**
+echo 3. **Restart your computer** after installations
+echo 4. **Check Windows Event Viewer** for system errors
+echo 5. **Update Windows** to the latest version
+) > WINDOWS_TROUBLESHOOTING.md
+echo [SUCCESS] WINDOWS_TROUBLESHOOTING.md created!
+
 REM Final instructions
 echo.
 echo Installation Complete!
@@ -362,7 +636,7 @@ echo.
 echo Next steps:
 echo 1. Edit config.py to add your API keys ^(optional^)
 echo 2. Start Ollama: ollama serve
-echo 3. Run the writer: python text_co_writer.py
+echo 3. Run the writer: start_writer.bat ^(or python text_co_writer.py^)
 echo 4. Add reference materials to the reference_materials\ folder
 echo.
 echo Available models:
@@ -372,5 +646,8 @@ echo [SUCCESS] Happy writing!
 echo.
 echo Reference materials folder created: reference_materials\
 echo Add your PDF, DOCX, or TXT files there for style inspiration!
+echo.
+echo If you encounter any issues, check WINDOWS_TROUBLESHOOTING.md
+echo for common solutions and troubleshooting steps.
 echo.
 echo Installation completed successfully!
