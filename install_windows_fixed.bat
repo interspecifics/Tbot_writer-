@@ -1,0 +1,364 @@
+@echo off
+setlocal enabledelayedexpansion
+
+REM GPT Neo-Style Text Co-Writer - Windows Installation Script (VS Code Compatible)
+REM This script automatically installs all dependencies for the text co-writer
+
+echo.
+echo GPT Neo-Style Text Co-Writer - Windows Installation
+echo ==================================================
+echo.
+
+REM Check if running on Windows
+if not "%OS%"=="Windows_NT" (
+    echo [ERROR] This script is for Windows only. Use install_mac.sh for macOS.
+    exit /b 1
+)
+
+REM Check if running as administrator (recommended)
+net session >nul 2>&1
+if %errorlevel% neq 0 (
+    echo [WARNING] This script is not running as administrator.
+    echo Some installations might require admin privileges.
+    echo Continuing anyway...
+    echo.
+)
+
+REM Check if Python is installed
+echo [INFO] Checking Python installation...
+python --version >nul 2>&1
+if %errorlevel% neq 0 (
+    echo [ERROR] Python not found. Please install Python from https://python.org
+    echo Make sure to check 'Add Python to PATH' during installation
+    echo Download Python from: https://www.python.org/downloads/
+    exit /b 1
+) else (
+    echo [SUCCESS] Python already installed!
+    python --version
+)
+
+REM Check if pip is installed
+echo [INFO] Checking pip installation...
+pip --version >nul 2>&1
+if %errorlevel% neq 0 (
+    echo [INFO] Installing pip...
+    python -m ensurepip --upgrade
+    echo [SUCCESS] Pip installed successfully!
+) else (
+    echo [SUCCESS] Pip already installed!
+    pip --version
+)
+
+REM Install required Python packages
+echo [INFO] Installing Python dependencies...
+pip install openai requests PyPDF2 python-docx
+if %errorlevel% neq 0 (
+    echo [ERROR] Failed to install Python packages. Trying with --user flag...
+    pip install --user openai requests PyPDF2 python-docx
+    if %errorlevel% neq 0 (
+        echo [ERROR] Failed to install packages. Please check your internet connection.
+        exit /b 1
+    )
+)
+echo [SUCCESS] Python dependencies installed!
+
+REM Check if curl is available
+echo [INFO] Checking curl availability...
+curl --version >nul 2>&1
+if %errorlevel% neq 0 (
+    echo [WARNING] curl not found. Some features might not work properly.
+    echo You can install curl from: https://curl.se/windows/
+)
+
+REM Check if Ollama is installed
+echo [INFO] Checking Ollama installation...
+ollama --version >nul 2>&1
+if %errorlevel% neq 0 (
+    echo [INFO] Ollama not found. Installing Ollama...
+    
+    REM Check if we can download files
+    echo [INFO] Testing download capability...
+    powershell -Command "Test-NetConnection -ComputerName github.com -Port 443" >nul 2>&1
+    if %errorlevel% neq 0 (
+        echo [ERROR] No internet connection. Please check your connection and try again.
+        exit /b 1
+    )
+    
+    REM Download Ollama installer
+    echo [INFO] Downloading Ollama installer...
+    powershell -Command "try { Invoke-WebRequest -Uri 'https://github.com/ollama/ollama/releases/latest/download/ollama-windows-amd64.msi' -OutFile 'ollama-installer.msi' -UseBasicParsing } catch { Write-Host 'Download failed. Please download manually from: https://ollama.ai/download' }"
+    
+    REM Check if download was successful
+    if not exist "ollama-installer.msi" (
+        echo [ERROR] Failed to download Ollama installer.
+        echo Please download manually from: https://ollama.ai/download
+        echo After installing Ollama, run this script again.
+        exit /b 1
+    )
+    
+    REM Install Ollama
+    echo [INFO] Installing Ollama...
+    msiexec /i ollama-installer.msi /quiet /norestart
+    
+    REM Wait for installation
+    echo [INFO] Waiting for installation to complete...
+    timeout /t 15 /nobreak >nul
+    
+    REM Clean up installer
+    if exist "ollama-installer.msi" del ollama-installer.msi
+    
+    REM Check if installation was successful
+    ollama --version >nul 2>&1
+    if %errorlevel% neq 0 (
+        echo [WARNING] Ollama installation might not be complete.
+        echo Please restart your computer and try again.
+        echo Or download manually from: https://ollama.ai/download
+    ) else (
+        echo [SUCCESS] Ollama installed successfully!
+    )
+) else (
+    echo [SUCCESS] Ollama already installed!
+    ollama --version
+)
+
+REM Start Ollama service
+echo [INFO] Starting Ollama service...
+start /B ollama serve
+
+REM Wait for Ollama to start
+echo [INFO] Waiting for Ollama to start...
+timeout /t 10 /nobreak >nul
+
+REM Check if Ollama is running
+echo [INFO] Checking if Ollama is running...
+if exist "curl.exe" (
+    curl -s http://localhost:11434/api/tags >nul 2>&1
+    if %errorlevel% neq 0 (
+        echo [WARNING] Ollama service might not be running. Please start it manually:
+        echo   ollama serve
+    ) else (
+        echo [SUCCESS] Ollama is running!
+    )
+) else (
+    echo [WARNING] curl not available. Cannot verify Ollama status.
+    echo Please check if Ollama is running manually.
+)
+
+REM Pull some useful models
+echo [INFO] Downloading AI models (this may take a while)...
+echo.
+
+REM Pull neural-chat (smaller, faster model)
+echo [INFO] Downloading neural-chat model (4.1GB)...
+ollama pull neural-chat
+if %errorlevel% neq 0 (
+    echo [WARNING] Failed to download neural-chat model. You can try again later with: ollama pull neural-chat
+)
+
+REM Pull mistral (good balance of size and quality)
+echo [INFO] Downloading mistral model (4.1GB)...
+ollama pull mistral
+if %errorlevel% neq 0 (
+    echo [WARNING] Failed to download mistral model. You can try again later with: ollama pull mistral
+)
+
+REM Pull llama2 (larger, higher quality model)
+echo [INFO] Downloading llama2 model (3.8GB)...
+ollama pull llama2
+if %errorlevel% neq 0 (
+    echo [WARNING] Failed to download llama2 model. You can try again later with: ollama pull llama2
+)
+
+echo [SUCCESS] Model download process completed!
+
+REM Create reference materials folder
+echo [INFO] Creating reference materials folder...
+if not exist "reference_materials" mkdir reference_materials
+echo [SUCCESS] Reference materials folder created: reference_materials\
+
+REM Create a sample reference file
+echo [INFO] Creating sample reference material...
+(
+echo Sample Reference Material: Ecological Science Fiction
+echo.
+echo This document serves as a reference for writing in the style of ecological science fiction, combining environmental themes with futuristic elements.
+echo.
+echo Key Themes:
+echo - The intersection of nature and technology
+echo - Climate change and adaptation
+echo - Bio-mechanical systems
+echo - Environmental consciousness in future societies
+echo.
+echo Writing Style:
+echo - Descriptive language that emphasizes sensory details
+echo - Scientific terminology mixed with poetic imagery
+echo - Focus on environmental relationships and interconnectedness
+echo - Contemplative tone that reflects on human-nature interactions
+echo.
+echo Example Passage:
+echo The bio-luminescent forest pulsed with an otherworldly rhythm, each tree a node in a vast neural network that spanned the continent. The ancient mycelium networks, now enhanced with quantum computing capabilities, processed environmental data in ways that transcended human understanding.
+) > reference_materials\sample_reference.txt
+
+echo [SUCCESS] Sample reference material created!
+
+REM Create a configuration file
+echo [INFO] Creating configuration file...
+(
+echo # Configuration file for GPT Neo-Style Text Co-Writer
+echo # You can modify these settings as needed
+echo.
+echo # API Keys ^(add your keys here^)
+echo OPENAI_API_KEY = "your-openai-api-key-here"  # Get from https://platform.openai.com/api-keys
+echo HUGGINGFACE_API_KEY = "your-huggingface-api-key-here"  # Get from https://huggingface.co/settings/tokens
+echo.
+echo # Ollama Configuration
+echo OLLAMA_BASE_URL = "http://localhost:11434"
+echo.
+echo # Default settings
+echo DEFAULT_MODEL = "neural-chat"  # Options: neural-chat, mistral, llama2, gpt-3.5-turbo-instruct
+echo DEFAULT_STYLE = "sci-fi"
+echo DEFAULT_CHARACTER = "cyra"
+echo.
+echo # Model preferences ^(uncomment to set defaults^)
+echo # PREFERRED_MODELS = ["neural-chat", "mistral", "llama2"]  # Order of preference for local models
+) > config.py
+
+echo [SUCCESS] Configuration file created: config.py
+
+REM Create a quick start script
+echo [INFO] Creating quick start script...
+(
+echo @echo off
+echo echo Starting GPT Neo-Style Text Co-Writer...
+echo echo Make sure Ollama is running: ollama serve
+echo echo.
+echo python text_co_writer.py
+echo pause
+) > start_writer.bat
+
+echo [SUCCESS] Quick start script created: start_writer.bat
+
+REM Create a README file
+echo [INFO] Creating README file...
+(
+echo # GPT Neo-Style Text Co-Writer
+echo.
+echo A powerful AI text co-writing tool with support for multiple models, writer characters, custom elements, and reference materials.
+echo.
+echo ## Features
+echo.
+echo - **Multiple AI Models**: OpenAI, Ollama ^(local^), and Hugging Face
+echo - **Writer Characters**: 5 pre-defined fictional writer personalities
+echo - **Custom Elements**: Sci-fi world-building elements
+echo - **Writing Styles**: Sci-fi, academic, poetry, journalistic, and more
+echo - **Reference Materials**: Support for PDF, DOCX, and TXT files ^(style inspiration only^)
+echo - **Narrative Continuation**: Continues your story in the same direction
+echo - **Continuous Operation**: Keep writing without restarting
+echo - **Numbered Selection**: Easy model and character selection by number
+echo.
+echo ## Quick Start
+echo.
+echo 1. **Start the service** ^(if not already running^):
+echo    ```cmd
+echo    ollama serve
+echo    ```
+echo.
+echo 2. **Run the writer**:
+echo    ```cmd
+echo    start_writer.bat
+echo    ```
+echo    or manually:
+echo    ```cmd
+echo    python text_co_writer.py
+echo    ```
+echo.
+echo ## Available Models
+echo.
+echo ### Local Models ^(Free^)
+echo - **neural-chat**: Fast, good for quick responses
+echo - **mistral**: Balanced performance and quality
+echo - **llama2**: High quality, larger model
+echo.
+echo ### Cloud Models ^(Require API Keys^)
+echo - **gpt-3.5-turbo-instruct**: OpenAI's model
+echo - **gpt-4**: OpenAI's latest model
+echo.
+echo ## Writer Characters
+echo.
+echo 1. **Cyra the Posthumanist**: Radical thinker who dissolves boundaries between species, machines, and matter
+echo 2. **Lia the Affective Nomad**: Restless and fluid, believes identity is a constant becoming
+echo 3. **Dr. Orin**: Philosopher-scientist who sees phenomena as entangled events
+echo 4. **Fynn**: Analytical yet whimsical observer who maps relationships between humans, nonhumans, and objects
+echo 5. **ArwenDreamer**: Visionary who thrives in hybrid worlds of machines, animals, and spirits
+echo.
+echo ## Custom Elements
+echo.
+echo Include sci-fi elements like:
+echo - hybrid_plants, mechanical_bees, glacial_memory
+echo - permafrost_seeds, siren_sounds, quantum_ecology
+echo - neural_networks, time_crystals, atmospheric_poetry
+echo.
+echo ## Reference Materials
+echo.
+echo Add your own reference materials to the `reference_materials\` folder:
+echo - **PDF files** ^(.pdf^) - Research papers, books, articles
+echo - **Word documents** ^(.docx, .doc^) - Manuscripts, notes
+echo - **Text files** ^(.txt^) - Any plain text content
+echo.
+echo The AI will use these as **style inspiration only** - it won't copy content but will adopt the writing style and approach.
+echo.
+echo ## Commands
+echo.
+echo - `quit`: Exit the program
+echo - `new style`: Change writing style and elements
+echo - `new character`: Change writer character ^(numbered selection available^)
+echo - `new model`: Switch to different AI model ^(numbered selection available^)
+echo - `reload refs`: Reload reference materials
+echo.
+echo ## Troubleshooting
+echo.
+echo 1. **Ollama not running**: `ollama serve`
+echo 2. **Model not found**: `ollama pull model-name`
+echo 3. **API errors**: Check your API keys in config.py
+echo 4. **Reference materials not loading**: Check file formats ^(PDF, DOCX, TXT only^)
+echo 5. **AI copying reference content**: Reference materials are for style inspiration only
+echo.
+echo ## Requirements
+echo.
+echo - Windows 10 or later
+echo - Python 3.7+
+echo - Ollama ^(for local models^)
+echo - Internet connection ^(for cloud models^)
+echo.
+echo ## Dependencies
+echo.
+echo - **openai**: OpenAI API client
+echo - **requests**: HTTP library
+echo - **PyPDF2**: PDF text extraction
+echo - **python-docx**: Word document text extraction
+) > README.md
+
+echo [SUCCESS] README.md created!
+
+REM Final instructions
+echo.
+echo Installation Complete!
+echo ========================
+echo.
+echo [SUCCESS] Your GPT Neo-Style Text Co-Writer is ready to use!
+echo.
+echo Next steps:
+echo 1. Edit config.py to add your API keys ^(optional^)
+echo 2. Start Ollama: ollama serve
+echo 3. Run the writer: python text_co_writer.py
+echo 4. Add reference materials to the reference_materials\ folder
+echo.
+echo Available models:
+ollama list
+echo.
+echo [SUCCESS] Happy writing!
+echo.
+echo Reference materials folder created: reference_materials\
+echo Add your PDF, DOCX, or TXT files there for style inspiration!
+echo.
+echo Installation completed successfully!
