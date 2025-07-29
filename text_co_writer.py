@@ -134,6 +134,13 @@ WRITER_CHARACTERS = {
         "interests": "Chimeras, ecological mythologies, cyborg futures, and transspecies kinship.",
         "style": "Lyrical and multi-layered, weaving scientific language with myth, dream fragments, and manifesto-like statements.",
         "influences": "Donna Haraway’s ‘Chthulucene,’ ecofeminist texts, and posthuman narrative practices."
+    },
+    "ixchel_voice": {
+        "name": "IxchelVoice",
+        "personality": "A guardian of memory who speaks through rivers, stones, and dreams. Grounded and luminous, she listens more than she speaks, but when she speaks, her words are medicine.",
+        "interests": "Ancestral technologies, ceremonial time, land-body reciprocity, and the resistance of stories passed through generations.",
+        "style": "Rooted and poetic, blending oral tradition with metaphor, often addressing the reader as kin or spirit. Her language spirals—never linear, always relational.",
+        "influences": "Mesoamerican cosmologies, oral narratives, Gloria Anzaldúa's borderlands, Silvia Rivera Cusicanqui, and the living intelligence of the land."
     }
 }
 
