@@ -448,12 +448,88 @@ def list_reference_materials():
         file_size = os.path.getsize(file_path)
         print(f"{i}. {filename} ({file_size:,} bytes)")
 
+def list_available_styles():
+    """List all available writing styles with numbers"""
+    print("\n" + "="*60)
+    print("AVAILABLE WRITING STYLES")
+    print("="*60)
+    
+    all_styles = {}
+    style_counter = 1
+    
+    for key, description in STYLES.items():
+        print(f"{style_counter:2d}. {key.upper()}")
+        print(f"     {description}")
+        all_styles[style_counter] = key
+        style_counter += 1
+    
+    print()
+    return all_styles
+
+def list_available_custom_elements():
+    """List all available custom elements with numbers"""
+    print("\n" + "="*60)
+    print("AVAILABLE CUSTOM ELEMENTS")
+    print("="*60)
+    print("Add these to your world-building (comma-separated):")
+    print()
+    
+    all_elements = {}
+    element_counter = 1
+    
+    for key, description in CUSTOM_ELEMENTS.items():
+        print(f"{element_counter:2d}. {key}")
+        print(f"     {description}")
+        all_elements[element_counter] = key
+        element_counter += 1
+    
+    print()
+    return all_elements
+
+def get_style_by_number(all_styles, user_input):
+    """Get style by number or name"""
+    try:
+        number = int(user_input)
+        if number in all_styles:
+            return all_styles[number]
+        else:
+            print(f"Invalid style number: {number}")
+            return None
+    except ValueError:
+        # If not a number, treat as style name/key
+        if user_input in STYLES:
+            return user_input
+        else:
+            print(f"Invalid style name: {user_input}")
+            return None
+
+def get_custom_elements_by_numbers(all_elements, user_input):
+    """Get custom elements by numbers or names"""
+    if not user_input.strip():
+        return []
+    
+    elements = []
+    parts = [part.strip() for part in user_input.split(",")]
+    
+    for part in parts:
+        try:
+            number = int(part)
+            if number in all_elements:
+                elements.append(all_elements[number])
+            else:
+                print(f"Invalid element number: {number}")
+        except ValueError:
+            # If not a number, treat as element name/key
+            if part in CUSTOM_ELEMENTS:
+                elements.append(part)
+            else:
+                print(f"Invalid element name: {part}")
+    
+    return elements
+
 if __name__ == "__main__":
     print("🎛 GPT Neo-Style Text Co-Writer")
-    print("Available styles:", ", ".join(STYLES.keys()))
-    
-    # Show available models with numbers
-    all_models = list_available_models()
+    print("="*60)
     
     # Show reference materials
     list_reference_materials()
@@ -462,10 +538,19 @@ if __name__ == "__main__":
     reference_materials = load_reference_materials()
     
     # Get initial configuration
-    style = input(f"\nChoose a style (default: {DEFAULT_STYLE}): ").strip() or DEFAULT_STYLE
+    print(f"\nChoose a style (enter number or name, default: {DEFAULT_STYLE}):")
+    all_styles = list_available_styles()
+    style_input = input().strip() or DEFAULT_STYLE
+    style = get_style_by_number(all_styles, style_input)
+    if not style:
+        style = DEFAULT_STYLE
+        print(f"Using default style: {DEFAULT_STYLE}")
+    else:
+        print(f"Selected style: {style}")
     
     # Get model selection
     print(f"\nChoose a model (enter number or name, default: {DEFAULT_MODEL}):")
+    all_models = list_available_models()
     model_input = input().strip() or DEFAULT_MODEL
     model_name = get_model_by_number(all_models, model_input)
     if not model_name:
@@ -475,8 +560,8 @@ if __name__ == "__main__":
         print(f"Selected model: {model_name}")
     
     # Get writer character
+    print(f"\nChoose a writer character (enter number or name, default: {DEFAULT_CHARACTER}):")
     all_characters = list_available_characters()
-    print(f"Choose a writer character (enter number or name, default: {DEFAULT_CHARACTER}):")
     character_input = input().strip() or DEFAULT_CHARACTER
     writer_character = get_character_by_number(all_characters, character_input)
     if not writer_character:
@@ -487,17 +572,21 @@ if __name__ == "__main__":
         print(f"Selected: {char['name']}")
     
     # Get custom elements
-    print("\nEnter custom elements to include (comma-separated, or press Enter for none):")
+    print("\nEnter custom elements to include (enter numbers or names, comma-separated, or press Enter for none):")
+    all_custom_elements = list_available_custom_elements()
     elements_input = input().strip()
-    custom_elements = []
-    if elements_input:
-        custom_elements = [elem.strip() for elem in elements_input.split(",")]
+    custom_elements = get_custom_elements_by_numbers(all_custom_elements, elements_input)
+    if custom_elements:
+        print(f"Selected elements: {', '.join(custom_elements)}")
+    else:
+        print("No custom elements selected.")
     
     print("\n" + "="*50)
     print(f"Ready for prompts! Using model: {model_name}")
     if reference_materials:
         print(f"Loaded {len(reference_materials)} reference material(s)")
     print("Type 'quit' to exit, 'new style' to change style/elements, 'new character' to change character, 'new model' to change model, 'reload refs' to reload reference materials")
+    print("Type 'status' to show current settings, 'help' for all commands")
     print("="*50)
     
     while True:
@@ -511,12 +600,30 @@ if __name__ == "__main__":
             print("\n" + "="*30)
             print("CHANGING STYLE AND ELEMENTS")
             print("="*30)
-            style = input("Choose a new style: ").strip()
-            print("\nEnter custom elements to include (comma-separated, or press Enter for none):")
+            
+            # Show available styles
+            all_styles = list_available_styles()
+            print("Choose a new style (enter number or name):")
+            style_input = input().strip()
+            new_style = get_style_by_number(all_styles, style_input)
+            if new_style:
+                style = new_style
+                print(f"Style updated to: {style}")
+            else:
+                print("Invalid style selection. Keeping current style.")
+            
+            # Show available custom elements
+            all_custom_elements = list_available_custom_elements()
+            print("\nEnter custom elements to include (enter numbers or names, comma-separated, or press Enter for none):")
             elements_input = input().strip()
-            custom_elements = []
-            if elements_input:
-                custom_elements = [elem.strip() for elem in elements_input.split(",")]
+            new_elements = get_custom_elements_by_numbers(all_custom_elements, elements_input)
+            if new_elements:
+                custom_elements = new_elements
+                print(f"Elements updated to: {', '.join(custom_elements)}")
+            else:
+                custom_elements = []
+                print("No custom elements selected.")
+            
             print("Style and elements updated!")
             continue
         elif prompt.lower() == 'new character':
@@ -554,6 +661,29 @@ if __name__ == "__main__":
             print("="*30)
             reference_materials = load_reference_materials()
             print(f"Reloaded {len(reference_materials)} reference material(s)")
+            continue
+        elif prompt.lower() == 'status':
+            print("\n" + "="*30)
+            print("CURRENT SETTINGS")
+            print("="*30)
+            print(f"Style: {style}")
+            print(f"Model: {model_name}")
+            print(f"Writer Character: {WRITER_CHARACTERS[writer_character]['name']}")
+            print(f"Custom Elements: {', '.join(custom_elements)}")
+            print("="*30)
+            continue
+        elif prompt.lower() == 'help':
+            print("\n" + "="*30)
+            print("AVAILABLE COMMANDS")
+            print("="*30)
+            print("quit - Exit the program")
+            print("new style - Change the writing style")
+            print("new character - Change the writer character")
+            print("new model - Change the AI model")
+            print("reload refs - Reload reference materials")
+            print("status - Show current settings")
+            print("help - Show this help message")
+            print("="*30)
             continue
         elif not prompt:
             print("Please enter a prompt or type 'quit' to exit.")
