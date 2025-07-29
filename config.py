@@ -2,7 +2,7 @@
 # You can modify these settings as needed
 
 # API Keys (add your keys here)
-OPENAI_API_KEY = "your-openai-api-key-here"  # Get from https://platform.openai.com/api-keys
+OPENAI_API_KEY = ""  # Get from https://platform.openai.com/api-keys
 HUGGINGFACE_API_KEY = "your-huggingface-api-key-here"  # Get from https://huggingface.co/settings/tokens
 
 # Ollama Configuration
