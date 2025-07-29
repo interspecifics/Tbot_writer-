@@ -179,24 +179,36 @@ echo [SUCCESS] Reference materials folder created: reference_materials\
 REM Create a sample reference file
 echo [INFO] Creating sample reference material...
 (
-echo Sample Reference Material: Ecological Science Fiction
+echo Sample Reference Material: New Materialist Ecological Fiction
 echo.
-echo This document serves as a reference for writing in the style of ecological science fiction, combining environmental themes with futuristic elements.
+echo This document serves as a reference for writing in the style of new materialist ecological fiction, a speculative genre where matter is vibrant, agency is distributed, and the boundaries between subject and object, nature and technology, human and nonhuman are entangled.
 echo.
-echo Key Themes:
-echo - The intersection of nature and technology
-echo - Climate change and adaptation
-echo - Bio-mechanical systems
-echo - Environmental consciousness in future societies
 echo.
-echo Writing Style:
-echo - Descriptive language that emphasizes sensory details
-echo - Scientific terminology mixed with poetic imagery
-echo - Focus on environmental relationships and interconnectedness
-echo - Contemplative tone that reflects on human-nature interactions
+echo Key Themes
+echo 	•	The entanglement of matter, thought, and perception
+echo 	•	Multispecies and machinic agency
+echo 	•	Intra-action as co-constitution of beings and systems ^(Barad^)
+echo 	•	Posthuman subjectivities and hybrid identities
+echo 	•	Vibrant materiality and ecological becoming
 echo.
-echo Example Passage:
-echo The bio-luminescent forest pulsed with an otherworldly rhythm, each tree a node in a vast neural network that spanned the continent. The ancient mycelium networks, now enhanced with quantum computing capabilities, processed environmental data in ways that transcended human understanding.
+echo.
+echo Writing Style
+echo 	•	Philosophical language merged with sensorial detail
+echo 	•	Poetic metaphors grounded in material reality
+echo 	•	Scientific and ontological terms used evocatively ^(e.g., "intra-action," "assemblage," "affect"^)
+echo 	•	Reflexive tone, often displacing the human perspective
+echo 	•	Temporality as nonlinear, distributed across species and systems
+echo.
+echo.
+echo Example Passage
+echo.
+echo The wet metal of the exosynthetic moss shivered as dawn filtered through the carbon-threaded clouds. Moisture condensed on its surface was not merely water—it was memory, encoded in molecular clusters that whispered the air's chemical lineage. The moss did not grow; it negotiated growth with the pH of the soil, with light vectors, with the tremor of nearby machines.
+echo.
+echo A network of sensor-roots, neither plant nor tool, pulsed beneath the skin of the biome, relaying affective signals between fungal filaments and nanofiber webs. There was no hierarchy here, no command chain—only recursive participation, a choreography of entanglement.
+echo.
+echo A drone passed, not as observer but as participant—its wings attuned to the low-frequency hum of the earth's metabolic rhythm. It dropped a mineral spore coded to respond to local affect thresholds, then disappeared into the fog of becoming.
+echo.
+echo In this world, intelligence was not centralized, but distributed across filaments, wings, minerals, and desire. The question was no longer what can we control, but how do we attune to that which we are already inside of.
 ) > reference_materials\sample_reference.txt
 
 echo [SUCCESS] Sample reference material created!
@@ -208,8 +220,8 @@ echo # Configuration file for GPT Neo-Style Text Co-Writer
 echo # You can modify these settings as needed
 echo.
 echo # API Keys ^(add your keys here^)
-echo OPENAI_API_KEY = "your-openai-api-key-here"  # Get from https://platform.openai.com/api-keys
-echo HUGGINGFACE_API_KEY = "your-huggingface-api-key-here"  # Get from https://huggingface.co/settings/tokens
+echo OPENAI_API_KEY = ""  # Get from https://platform.openai.com/api-keys
+echo HUGGINGFACE_API_KEY = ""  # Get from https://huggingface.co/settings/tokens
 echo.
 echo # Ollama Configuration
 echo OLLAMA_BASE_URL = "http://localhost:11434"

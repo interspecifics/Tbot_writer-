@@ -74,8 +74,7 @@ MODELS = {
     }
 }
 
-# Create OpenAI client
-openai_client = openai.OpenAI(api_key=OPENAI_API_KEY)
+# OpenAI client will be created dynamically when needed
 
 STYLES = {
     "sci-fi": "Continue in a futuristic science fiction style, maintaining the narrative flow.",
@@ -233,18 +232,43 @@ def create_reference_context(reference_materials):
     return context
 
 def call_openai_model(prompt, model_name, max_tokens=300, temperature=0.3):
-    """Call OpenAI models"""
+    """Call OpenAI models with proper API key handling"""
     try:
-        response = openai_client.completions.create(
-            model=model_name,
-            prompt=prompt,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            top_p=0.9,
-            frequency_penalty=0.1,
-            presence_penalty=0.0,
-        )
-        return response.choices[0].text.strip()
+        # Check if we have a valid API key
+        if not OPENAI_API_KEY or OPENAI_API_KEY == "" or OPENAI_API_KEY == "your-openai-api-key-here":
+            raise Exception("OpenAI API key not configured. Please set your API key in config.py or use 'new model' to configure it.")
+        
+        # Create client with API key
+        client = openai.OpenAI(api_key=OPENAI_API_KEY)
+        
+        # Use the correct API call for the model
+        if model_name in ["gpt-4"]:
+            # For chat models, use chat completions
+            response = client.chat.completions.create(
+                model=model_name,
+                messages=[
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=max_tokens,
+                temperature=temperature,
+                top_p=0.9,
+                frequency_penalty=0.1,
+                presence_penalty=0.0
+            )
+            return response.choices[0].message.content.strip()
+        else:
+            # For completion models (gpt-3.5-turbo-instruct and others), use completions
+            response = client.completions.create(
+                model=model_name,
+                prompt=prompt,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                top_p=0.9,
+                frequency_penalty=0.1,
+                presence_penalty=0.0
+            )
+            return response.choices[0].text.strip()
+            
     except Exception as e:
         raise Exception(f"OpenAI API error: {e}")
 
@@ -354,6 +378,20 @@ def co_write(prompt, style, custom_elements=None, writer_character=None, model_n
     else:
         raise Exception(f"Unknown provider: {model_provider}")
 
+def get_available_ollama_models():
+    """Get list of actually installed Ollama models"""
+    try:
+        response = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            return [model["name"].split(":")[0] for model in data.get("models", [])]
+        else:
+            print(f"Warning: Could not fetch Ollama models (status {response.status_code})")
+            return []
+    except Exception as e:
+        print(f"Warning: Could not connect to Ollama: {e}")
+        return []
+
 def list_available_models():
     """List all available models grouped by provider with numbers"""
     print("\n" + "="*60)
@@ -363,10 +401,17 @@ def list_available_models():
     all_models = {}
     model_counter = 1
     
+    # Get actually installed Ollama models
+    installed_ollama_models = get_available_ollama_models()
+    
     for provider, models in MODELS.items():
         print(f"\n{provider.upper()} MODELS:")
         print("-" * 30)
         for model_name, model_info in models.items():
+            # For Ollama models, only show if actually installed
+            if provider == "ollama" and model_name not in installed_ollama_models:
+                continue
+                
             key_required = "🔑" if model_info["requires_key"] else "✅"
             print(f"{model_counter:2d}. {key_required} {model_name}")
             print(f"     {model_info['description']}")
@@ -527,6 +572,92 @@ def get_custom_elements_by_numbers(all_elements, user_input):
     
     return elements
 
+def get_openai_api_key():
+    """Prompt user for OpenAI API key and store it"""
+    print("\n" + "="*50)
+    print("OPENAI API KEY REQUIRED")
+    print("="*50)
+    print("To use OpenAI models, you need an API key.")
+    print("Get your key from: https://platform.openai.com/api-keys")
+    print("\nYour API key will be stored in config.py")
+    print("="*50)
+    
+    while True:
+        api_key = input("Enter your OpenAI API key (or 'cancel' to go back): ").strip()
+        
+        if api_key.lower() == 'cancel':
+            return None
+        
+        if not api_key:
+            print("❌ API key cannot be empty. Please enter a valid key or 'cancel'.")
+            continue
+        
+        if not api_key.startswith('sk-'):
+            print("❌ Invalid API key format. OpenAI keys start with 'sk-'. Please try again or 'cancel'.")
+            continue
+        
+        # Test the API key
+        print("Testing API key...")
+        try:
+            test_client = openai.OpenAI(api_key=api_key)
+            # Try a simple test call
+            test_response = test_client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "user", "content": "Hello"}],
+                max_tokens=5
+            )
+            print("✅ API key is valid!")
+            
+            # Save to config.py
+            save_api_key_to_config(api_key)
+            return api_key
+            
+        except Exception as e:
+            print(f"❌ API key test failed: {e}")
+            print("Please check your key and try again or 'cancel'.")
+
+def save_api_key_to_config(api_key):
+    """Save API key to config.py file"""
+    try:
+        config_content = f"""# Configuration file for GPT Neo-Style Text Co-Writer
+# You can modify these settings as needed
+
+# API Keys (add your keys here)
+OPENAI_API_KEY = "{api_key}"  # Get from https://platform.openai.com/api-keys
+HUGGINGFACE_API_KEY = "your-huggingface-api-key-here"  # Get from https://huggingface.co/settings/tokens
+
+# Ollama Configuration
+OLLAMA_BASE_URL = "http://localhost:11434"
+
+# Default settings
+DEFAULT_MODEL = "neural-chat"  # Options: neural-chat, mistral, llama2, gpt-3.5-turbo-instruct
+DEFAULT_STYLE = "sci-fi"
+DEFAULT_CHARACTER = "cyra"
+
+# Model preferences (uncomment to set defaults)
+# PREFERRED_MODELS = ["neural-chat", "mistral", "llama2"]  # Order of preference for local models
+"""
+        
+        with open("config.py", "w") as f:
+            f.write(config_content)
+        
+        print("✅ API key saved to config.py")
+        
+    except Exception as e:
+        print(f"❌ Could not save API key to config.py: {e}")
+        print("You can manually add your API key to config.py")
+
+def configure_openai_model():
+    """Configure OpenAI API key when user selects an OpenAI model"""
+    global OPENAI_API_KEY
+    
+    api_key = get_openai_api_key()
+    if api_key:
+        OPENAI_API_KEY = api_key
+        return True
+    else:
+        return False
+
 if __name__ == "__main__":
     print("🎛 GPT Neo-Style Text Co-Writer")
     print("="*60)
@@ -540,36 +671,56 @@ if __name__ == "__main__":
     # Get initial configuration
     print(f"\nChoose a style (enter number or name, default: {DEFAULT_STYLE}):")
     all_styles = list_available_styles()
-    style_input = input().strip() or DEFAULT_STYLE
-    style = get_style_by_number(all_styles, style_input)
-    if not style:
+    style_input = input().strip()
+    if not style_input:  # If empty, use default
         style = DEFAULT_STYLE
         print(f"Using default style: {DEFAULT_STYLE}")
     else:
-        print(f"Selected style: {style}")
+        style = get_style_by_number(all_styles, style_input)
+        if not style:
+            style = DEFAULT_STYLE
+            print(f"Invalid selection, using default style: {DEFAULT_STYLE}")
+        else:
+            print(f"Selected style: {style}")
     
     # Get model selection
     print(f"\nChoose a model (enter number or name, default: {DEFAULT_MODEL}):")
     all_models = list_available_models()
-    model_input = input().strip() or DEFAULT_MODEL
-    model_name = get_model_by_number(all_models, model_input)
-    if not model_name:
+    model_input = input().strip()
+    if not model_input:  # If empty, use default
         model_name = DEFAULT_MODEL
         print(f"Using default model: {DEFAULT_MODEL}")
     else:
-        print(f"Selected model: {model_name}")
+        model_name = get_model_by_number(all_models, model_input)
+        if not model_name:
+            model_name = DEFAULT_MODEL
+            print(f"Invalid selection, using default model: {DEFAULT_MODEL}")
+        else:
+            print(f"Selected model: {model_name}")
+            
+            # Check if this is an OpenAI model and configure API key if needed
+            if model_name in ["gpt-3.5-turbo-instruct", "gpt-4"]:
+                if not OPENAI_API_KEY or OPENAI_API_KEY == "" or OPENAI_API_KEY == "your-openai-api-key-here":
+                    print(f"\n⚠️  OpenAI API key required for {model_name}")
+                    if not configure_openai_model():
+                        print("Switching back to default model: neural-chat")
+                        model_name = "neural-chat"
     
     # Get writer character
     print(f"\nChoose a writer character (enter number or name, default: {DEFAULT_CHARACTER}):")
     all_characters = list_available_characters()
-    character_input = input().strip() or DEFAULT_CHARACTER
-    writer_character = get_character_by_number(all_characters, character_input)
-    if not writer_character:
+    character_input = input().strip()
+    if not character_input:  # If empty, use default
         writer_character = DEFAULT_CHARACTER
         print(f"Using default character: {DEFAULT_CHARACTER}")
     else:
-        char = WRITER_CHARACTERS[writer_character]
-        print(f"Selected: {char['name']}")
+        writer_character = get_character_by_number(all_characters, character_input)
+        if not writer_character:
+            writer_character = DEFAULT_CHARACTER
+            print(f"Invalid selection, using default character: {DEFAULT_CHARACTER}")
+        else:
+            char = WRITER_CHARACTERS[writer_character]
+            print(f"Selected: {char['name']}")
     
     # Get custom elements
     print("\nEnter custom elements to include (enter numbers or names, comma-separated, or press Enter for none):")
@@ -605,12 +756,15 @@ if __name__ == "__main__":
             all_styles = list_available_styles()
             print("Choose a new style (enter number or name):")
             style_input = input().strip()
-            new_style = get_style_by_number(all_styles, style_input)
-            if new_style:
-                style = new_style
-                print(f"Style updated to: {style}")
+            if not style_input:  # If empty, keep current style
+                print("No input provided. Keeping current style.")
             else:
-                print("Invalid style selection. Keeping current style.")
+                new_style = get_style_by_number(all_styles, style_input)
+                if new_style:
+                    style = new_style
+                    print(f"Style updated to: {style}")
+                else:
+                    print("Invalid style selection. Keeping current style.")
             
             # Show available custom elements
             all_custom_elements = list_available_custom_elements()
@@ -633,13 +787,16 @@ if __name__ == "__main__":
             all_characters = list_available_characters()
             print("Choose a writer character (enter number or name):")
             character_input = input().strip()
-            new_character = get_character_by_number(all_characters, character_input)
-            if new_character:
-                writer_character = new_character
-                char = WRITER_CHARACTERS[writer_character]
-                print(f"Character updated to: {char['name']}")
+            if not character_input:  # If empty, keep current character
+                print("No input provided. Keeping current character.")
             else:
-                print("Invalid character selection. Keeping current character.")
+                new_character = get_character_by_number(all_characters, character_input)
+                if new_character:
+                    writer_character = new_character
+                    char = WRITER_CHARACTERS[writer_character]
+                    print(f"Character updated to: {char['name']}")
+                else:
+                    print("Invalid character selection. Keeping current character.")
             continue
         elif prompt.lower() == 'new model':
             print("\n" + "="*30)
@@ -648,12 +805,23 @@ if __name__ == "__main__":
             all_models = list_available_models()
             print("Choose a new model (enter number or name):")
             model_input = input().strip()
-            new_model = get_model_by_number(all_models, model_input)
-            if new_model:
-                model_name = new_model
-                print(f"Model updated to: {model_name}")
+            if not model_input:  # If empty, keep current model
+                print("No input provided. Keeping current model.")
             else:
-                print("Invalid model selection. Keeping current model.")
+                new_model = get_model_by_number(all_models, model_input)
+                if new_model:
+                    # Check if this is an OpenAI model and configure API key if needed
+                    if new_model in ["gpt-3.5-turbo-instruct", "gpt-4"]:
+                        if not OPENAI_API_KEY or OPENAI_API_KEY == "" or OPENAI_API_KEY == "your-openai-api-key-here":
+                            print(f"\n⚠️  OpenAI API key required for {new_model}")
+                            if not configure_openai_model():
+                                print("Keeping current model.")
+                                continue
+                    
+                    model_name = new_model
+                    print(f"Model updated to: {model_name}")
+                else:
+                    print("Invalid model selection. Keeping current model.")
             continue
         elif prompt.lower() == 'reload refs':
             print("\n" + "="*30)

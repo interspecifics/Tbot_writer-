@@ -1,4 +1,4 @@
-# GPT Neo-Style Text Co-Writer By INTERSPECIFICS
+# Text Co-Writer By INTERSPECIFICS
 
 AI text co-writing tool that helps you continue and expand your creative writing with multiple AI models, unique writer personalities, and customizable elements. This tool is designed for writers who want to collaborate with AI while maintaining their creative voice and narrative direction. 
 
@@ -11,13 +11,17 @@ This is an intelligent writing assistant that:
 - **Supports reference materials** for style inspiration (without copying content)
 - **Provides continuous operation** so you can keep writing without restarting
 - **Includes sci-fi world-building elements** for creative enhancement
+- **Smart model detection** - only shows models you actually have installed
+- **Automatic API key configuration** for cloud-based models
 
 ## Key Features
 
 ### Multiple AI Models
 - **Local Models (Free)**: neural-chat, mistral, llama2 - run entirely on your computer
 - **Cloud Models**: OpenAI GPT-3.5/4, Hugging Face models - require API keys
+- **Smart Detection**: Only shows models you have installed locally
 - **Easy Switching**: Change models during your writing session
+- **API Key Management**: Automatic prompting and validation for cloud models
 
 ### Writer Characters
 Five pre-defined fictional writer personalities, each with unique voices:
@@ -45,6 +49,15 @@ Include sci-fi world-building elements like:
 - Support for **PDF**, **DOCX**, and **TXT** files
 - Used for **style inspiration only** - AI won't copy content
 - Helps maintain consistent writing tone and approach
+
+### Interactive Commands
+- `quit` - Exit the program
+- `new style` - Change writing style and custom elements
+- `new character` - Change writer character
+- `new model` - Change AI model (with API key configuration)
+- `reload refs` - Reload reference materials
+- `status` - Show current settings
+- `help` - Show all available commands
 
 ## Installation
 
@@ -139,8 +152,10 @@ The script will automatically:
    - `quit`: Exit the program
    - `new style`: Change writing style and elements
    - `new character`: Change writer character
-   - `new model`: Switch to different AI model
+   - `new model`: Switch to different AI model (with API key configuration)
    - `reload refs`: Reload reference materials
+   - `status`: Show current settings
+   - `help`: Show all available commands
 
 ## Available Models
 
@@ -148,7 +163,7 @@ The script will automatically:
 - **neural-chat**: Fast, good for quick responses (4.1GB)
 - **mistral**: Balanced performance and quality (4.1GB)
 - **llama2**: High quality, larger model (3.8GB)
-- **codellama**: Code-optimized Llama model
+- **codellama**: Code-optimized Llama model (if installed)
 
 ### Cloud Models (Require API Keys)
 - **gpt-3.5-turbo-instruct**: OpenAI's efficient model
@@ -162,8 +177,8 @@ Edit `config.py` to customize your settings:
 
 ```python
 # API Keys (add your keys here)
-OPENAI_API_KEY = "your-openai-api-key-here"
-HUGGINGFACE_API_KEY = "your-huggingface-api-key-here"
+OPENAI_API_KEY = ""  # Get from https://platform.openai.com/api-keys
+HUGGINGFACE_API_KEY = ""  # Get from https://huggingface.co/settings/tokens
 
 # Ollama Configuration
 OLLAMA_BASE_URL = "http://localhost:11434"
@@ -173,6 +188,16 @@ DEFAULT_MODEL = "neural-chat"
 DEFAULT_STYLE = "sci-fi"
 DEFAULT_CHARACTER = "cyra"
 ```
+
+**Note**: The program will automatically prompt you for API keys when you select cloud-based models.
+
+## Smart Model Detection
+
+The program automatically detects which models you have installed locally and only shows those as available options. This prevents errors when trying to use models that aren't installed.
+
+- **Local models**: Only shows models you have pulled with `ollama pull`
+- **Cloud models**: Always available (require API keys)
+- **Automatic validation**: Tests API keys before saving them
 
 ## Reference Materials
 
@@ -199,6 +224,7 @@ The AI will use these as **style inspiration only** - it won't copy content but 
 3. **API errors**:
    - Check your API keys in `config.py`
    - Ensure you have internet connection for cloud models
+   - The program will prompt you for API keys when needed
 
 4. **Virtual environment issues** (macOS):
    ```bash
