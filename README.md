@@ -2,7 +2,7 @@
 
 AI text co-writing tool that helps you continue and expand your creative writing with multiple AI models, unique writer personalities, and customizable elements. This tool is designed for writers who want to collaborate with AI while maintaining their creative voice and narrative direction. 
 
-## What is GPT Neo-Style Text Co-Writer?
+## What is Text Co-Writer By INTERSPECIFICS?
 
 This is an intelligent writing assistant that:
 - **Continues your story** in the same direction and style you've established
@@ -16,41 +16,43 @@ This is an intelligent writing assistant that:
 
 ## Key Features
 
-### Multiple AI Models
-- **Local Models (Free)**: neural-chat, mistral, llama2 - run entirely on your computer
+### 🤖 Multiple AI Models
+- **Local Models (Free)**: neural-chat, mistral, llama2, codellama - run entirely on your computer
 - **Cloud Models**: OpenAI GPT-3.5/4, Hugging Face models - require API keys
 - **Smart Detection**: Only shows models you have installed locally
 - **Easy Switching**: Change models during your writing session
 - **API Key Management**: Automatic prompting and validation for cloud models
 
-### Writer Characters
-Five pre-defined fictional writer personalities, each with unique voices:
+### 👥 Writer Characters
+Six pre-defined fictional writer personalities, each with unique voices:
 
 1. **Cyra the Posthumanist**: Radical thinker who dissolves boundaries between species, machines, and matter
 2. **Lia the Affective Nomad**: Restless and fluid, believes identity is a constant becoming  
 3. **Dr. Orin**: Philosopher-scientist who sees phenomena as entangled events
 4. **Fynn**: Analytical yet whimsical observer who maps relationships between humans, nonhumans, and objects
 5. **ArwenDreamer**: Visionary who thrives in hybrid worlds of machines, animals, and spirits
+6. **IxchelVoice**: A guardian of memory who speaks through rivers, stones, and dreams. Grounded and luminous, she listens more than she speaks, but when she speaks, her words are medicine
 
-### Writing Styles
+### 🎨 Writing Styles
 - **Sci-fi**: Futuristic science fiction with technological elements
 - **Peer-review**: Academic, analytical writing style
 - **Essay**: Formal reflective essay style
 - **Poetry**: Contemporary free verse poetry
 - **Journalistic**: New York Times feature article style
 
-### Custom Elements
+### 🌟 Custom Elements
 Include sci-fi world-building elements like:
 - `hybrid_plants`, `mechanical_bees`, `glacial_memory`
 - `permafrost_seeds`, `siren_sounds`, `quantum_ecology`
 - `neural_networks`, `time_crystals`, `atmospheric_poetry`
+- `memory_moss`: Colonial organisms that absorb and store memories from their environment
 
-### Reference Materials
+### 📚 Reference Materials
 - Support for **PDF**, **DOCX**, and **TXT** files
 - Used for **style inspiration only** - AI won't copy content
 - Helps maintain consistent writing tone and approach
 
-### Interactive Commands
+### 🎮 Interactive Commands
 - `quit` - Exit the program
 - `new style` - Change writing style and custom elements
 - `new character` - Change writer character
@@ -171,15 +173,15 @@ The script will automatically:
 ## Available Models
 
 ### Local Models (Free, No API Key Required)
-- **neural-chat**: Fast, good for quick responses (4.1GB)
-- **mistral**: Balanced performance and quality (4.1GB)
-- **llama2**: High quality, larger model (3.8GB)
+- **neural-chat**: Intel's Neural Chat model (fast, good for quick responses)
+- **mistral**: Mistral AI's 7B model (balanced performance and quality)
+- **llama2**: Meta's Llama 2 model (7B parameters, high quality)
 - **codellama**: Code-optimized Llama model (if installed)
 
 ### Cloud Models (Require API Keys)
 - **gpt-3.5-turbo-instruct**: OpenAI's efficient model
 - **gpt-4**: OpenAI's latest high-quality model
-- **meta-llama/Llama-2-7b-chat-hf**: Hugging Face hosted Llama
+- **meta-llama/Llama-2-7b-chat-hf**: Llama 2 7B Chat on Hugging Face
 - **microsoft/DialoGPT-medium**: Microsoft's conversational model
 
 ## Configuration
@@ -218,6 +220,26 @@ Add your own reference materials to the `reference_materials/` folder:
 - **Text files** (.txt) - Any plain text content
 
 The AI will use these as **style inspiration only** - it won't copy content but will adopt the writing style and approach.
+
+## Project Structure
+
+```
+Tbot_writer-/
+├── text_co_writer.py          # Main application
+├── config.py                  # Configuration file
+├── requirements.txt           # Python dependencies
+├── README.md                  # This file
+├── install_mac.sh            # macOS installation script
+├── install_windows.ps1       # Windows PowerShell installer
+├── install_windows_fixed.bat # Windows batch installer
+├── start_writer.sh           # macOS startup script
+├── start_writer.ps1          # Windows PowerShell startup
+├── start_writer.bat          # Windows batch startup
+├── debug_test.py             # Debugging utility
+├── fix_python_alias.ps1      # Python alias fix for Windows
+├── reference_materials/       # Reference files folder
+└── venv/                     # Virtual environment (macOS)
+```
 
 ## Troubleshooting
 
@@ -289,6 +311,7 @@ If you encounter issues:
 ## License
 
 This project is open source and available under the MIT License.
+
 
 
 
