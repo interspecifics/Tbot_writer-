@@ -24,6 +24,285 @@ except ImportError:
 REFERENCE_FOLDER = "reference_materials"
 SUPPORTED_FORMATS = ['.pdf', '.docx', '.doc', '.txt']
 
+# Configuration files for characters and elements
+CHARACTERS_FILE = "characters.txt"
+CUSTOM_ELEMENTS_FILE = "custom_elements.txt"
+
+def load_characters_from_file():
+    """Load writer characters from external text file"""
+    characters = {}
+    
+    # Default characters if file doesn't exist
+    default_characters = {
+        "cyra": {
+            "name": "Cyra the Posthumanist",
+            "personality": "A radical thinker who dissolves boundaries between species, machines, and matter. Curious, provocative, and deeply empathetic.",
+            "interests": "Cyborg theory, multispecies storytelling, speculative feminism, and the ethics of technology.",
+            "style": "Dense yet playful, weaving theory with storytelling, often blurring the line between fact and fiction.",
+            "influences": "Donna Haraway, Octavia Butler, feminist science studies, and speculative fabulation."
+        },
+        "lia": {
+            "name": "Lia the Affective Nomad",
+            "personality": "Restless and fluid, she believes identity is a constant becoming. Her tone is passionate and philosophical.",
+            "interests": "Nomadic ethics, affect theory, the politics of desire, and feminist cartographies of knowledge.",
+            "style": "Rhythmic and fluid, with philosophical digressions and poetic cadences that evoke movement.",
+            "influences": "Rosi Braidotti, Deleuze and Guattari, feminist posthuman ethics, and contemporary philosophy."
+        },
+        "dr_orin": {
+            "name": "Dr. Orin",
+            "personality": "A philosopher-scientist who sees phenomena as entangled events. Speaks with precision but hints at the poetic in every measurement.",
+            "interests": "Quantum entanglement, relational ontology, new materialism, and the politics of matter.",
+            "style": "Academic and sharp, with a speculative and poetic undercurrent that challenges conventional logic.",
+            "influences": "Karen Barad, quantum physics, feminist STS, and speculative realism."
+        },
+        "fynn": {
+            "name": "Fynn",
+            "personality": "An analytical yet whimsical observer who maps relationships between humans, nonhumans, and objects.",
+            "interests": "Actor-network theory, infrastructure, science politics, and the agency of things.",
+            "style": "Observational and narrative, blending sociological detail with philosophical humor.",
+            "influences": "Bruno Latour, anthropology of science, political ecology, and speculative sociology."
+        },
+        "arwen": {
+            "name": "ArwenDreamer",
+            "personality": "A visionary who thrives in hybrid worlds of machines, animals, and spirits. Speaks as if everything is alive and conversing.",
+            "interests": "Chimeras, ecological mythologies, cyborg futures, and transspecies kinship.",
+            "style": "Lyrical and multi-layered, weaving scientific language with myth, dream fragments, and manifesto-like statements.",
+            "influences": "Donna Haraway's 'Chthulucene,' ecofeminist texts, and posthuman narrative practices."
+        },
+        "ixchel_voice": {
+            "name": "IxchelVoice",
+            "personality": "A guardian of memory who speaks through rivers, stones, and dreams. Grounded and luminous, she listens more than she speaks, but when she speaks, her words are medicine.",
+            "interests": "Ancestral technologies, ceremonial time, land-body reciprocity, and the resistance of stories passed through generations.",
+            "style": "Rooted and poetic, blending oral tradition with metaphor, often addressing the reader as kin or spirit. Her language spirals—never linear, always relational.",
+            "influences": "Mesoamerican cosmologies, oral narratives, Gloria Anzaldúa's borderlands, Silvia Rivera Cusicanqui, and the living intelligence of the land."
+        }
+    }
+    
+    try:
+        if not os.path.exists(CHARACTERS_FILE):
+            # Create default characters file
+            create_default_characters_file(default_characters)
+            print(f"Created default characters file: {CHARACTERS_FILE}")
+            return default_characters
+        
+        with open(CHARACTERS_FILE, 'r', encoding='utf-8') as file:
+            content = file.read().strip()
+            
+        if not content:
+            print(f"Characters file {CHARACTERS_FILE} is empty, using defaults")
+            return default_characters
+            
+        # Parse the file content
+        characters = parse_characters_file(content)
+        
+        if not characters:
+            print(f"Could not parse characters from {CHARACTERS_FILE}, using defaults")
+            return default_characters
+            
+        print(f"Loaded {len(characters)} characters from {CHARACTERS_FILE}")
+        return characters
+        
+    except Exception as e:
+        print(f"Error loading characters from {CHARACTERS_FILE}: {e}")
+        print("Using default characters")
+        return default_characters
+
+def create_default_characters_file(default_characters):
+    """Create the default characters file"""
+    content = """# Writer Characters Configuration File
+# Format: [CHARACTER_NAME]
+# name: Display Name
+# personality: Character personality description
+# interests: Character interests and focus areas
+# style: Writing style description
+# influences: Influences and inspirations
+# 
+# Add your own characters below or modify existing ones
+# Each character should be separated by [CHARACTER_NAME] on a new line
+
+[cyra]
+name: Cyra the Posthumanist
+personality: A radical thinker who dissolves boundaries between species, machines, and matter. Curious, provocative, and deeply empathetic.
+interests: Cyborg theory, multispecies storytelling, speculative feminism, and the ethics of technology.
+style: Dense yet playful, weaving theory with storytelling, often blurring the line between fact and fiction.
+influences: Donna Haraway, Octavia Butler, feminist science studies, and speculative fabulation.
+
+[lia]
+name: Lia the Affective Nomad
+personality: Restless and fluid, she believes identity is a constant becoming. Her tone is passionate and philosophical.
+interests: Nomadic ethics, affect theory, the politics of desire, and feminist cartographies of knowledge.
+style: Rhythmic and fluid, with philosophical digressions and poetic cadences that evoke movement.
+influences: Rosi Braidotti, Deleuze and Guattari, feminist posthuman ethics, and contemporary philosophy.
+
+[dr_orin]
+name: Dr. Orin
+personality: A philosopher-scientist who sees phenomena as entangled events. Speaks with precision but hints at the poetic in every measurement.
+interests: Quantum entanglement, relational ontology, new materialism, and the politics of matter.
+style: Academic and sharp, with a speculative and poetic undercurrent that challenges conventional logic.
+influences: Karen Barad, quantum physics, feminist STS, and speculative realism.
+
+[fynn]
+name: Fynn
+personality: An analytical yet whimsical observer who maps relationships between humans, nonhumans, and objects.
+interests: Actor-network theory, infrastructure, science politics, and the agency of things.
+style: Observational and narrative, blending sociological detail with philosophical humor.
+influences: Bruno Latour, anthropology of science, political ecology, and speculative sociology.
+
+[arwen]
+name: ArwenDreamer
+personality: A visionary who thrives in hybrid worlds of machines, animals, and spirits. Speaks as if everything is alive and conversing.
+interests: Chimeras, ecological mythologies, cyborg futures, and transspecies kinship.
+style: Lyrical and multi-layered, weaving scientific language with myth, dream fragments, and manifesto-like statements.
+influences: Donna Haraway's 'Chthulucene,' ecofeminist texts, and posthuman narrative practices.
+
+[ixchel_voice]
+name: IxchelVoice
+personality: A guardian of memory who speaks through rivers, stones, and dreams. Grounded and luminous, she listens more than she speaks, but when she speaks, her words are medicine.
+interests: Ancestral technologies, ceremonial time, land-body reciprocity, and the resistance of stories passed through generations.
+style: Rooted and poetic, blending oral tradition with metaphor, often addressing the reader as kin or spirit. Her language spirals—never linear, always relational.
+influences: Mesoamerican cosmologies, oral narratives, Gloria Anzaldúa's borderlands, Silvia Rivera Cusicanqui, and the living intelligence of the land.
+"""
+    
+    with open(CHARACTERS_FILE, 'w', encoding='utf-8') as file:
+        file.write(content)
+
+def parse_characters_file(content):
+    """Parse the characters file content into a dictionary"""
+    characters = {}
+    current_character = None
+    current_data = {}
+    
+    lines = content.split('\n')
+    
+    for line in lines:
+        line = line.strip()
+        
+        # Skip empty lines and comments
+        if not line or line.startswith('#'):
+            continue
+            
+        # Check if this is a character header
+        if line.startswith('[') and line.endswith(']'):
+            # Save previous character if exists
+            if current_character and current_data:
+                characters[current_character] = current_data.copy()
+            
+            # Start new character
+            current_character = line[1:-1]  # Remove brackets
+            current_data = {}
+            
+        # Parse character attributes
+        elif current_character and ':' in line:
+            key, value = line.split(':', 1)
+            key = key.strip().lower()
+            value = value.strip()
+            
+            if key in ['name', 'personality', 'interests', 'style', 'influences']:
+                current_data[key] = value
+    
+    # Don't forget the last character
+    if current_character and current_data:
+        characters[current_character] = current_data.copy()
+    
+    return characters
+
+def load_custom_elements_from_file():
+    """Load custom elements from external text file"""
+    elements = {}
+    
+    # Default elements if file doesn't exist
+    default_elements = {
+        "hybrid_plants": "Bio-mechanical plants that combine organic growth with technological components, capable of photosynthesis and data processing simultaneously.",
+        "mechanical_bees": "Synthetic pollinators with crystalline wings and quantum navigation systems, maintaining ecosystem balance in artificial environments.",
+        "glacial_memory": "Ancient ice formations that store genetic memories and environmental data from millennia past, slowly releasing information as they melt.",
+        "permafrost_seeds": "Dormant life forms preserved in frozen soil for thousands of years, awakening with unique adaptations to modern conditions.",
+        "siren_sounds": "Harmonic frequencies emitted by certain plants that can influence human consciousness and environmental patterns.",
+        "quantum_ecology": "Ecosystems where quantum entanglement affects species relationships and environmental interactions across vast distances.",
+        "neural_networks": "Living networks of interconnected organisms that share information and coordinate responses like a biological internet.",
+        "time_crystals": "Crystalline structures that exist in multiple temporal states simultaneously, allowing access to past and future environmental conditions.",
+        "atmospheric_poetry": "Weather patterns that naturally form into poetic structures, with clouds and wind creating visible verses in the sky.",
+        "memory_moss": "Colonial organisms that absorb and store memories from their environment, growing more complex patterns as they accumulate experiences."
+    }
+    
+    try:
+        if not os.path.exists(CUSTOM_ELEMENTS_FILE):
+            # Create default elements file
+            create_default_elements_file(default_elements)
+            print(f"Created default custom elements file: {CUSTOM_ELEMENTS_FILE}")
+            return default_elements
+        
+        with open(CUSTOM_ELEMENTS_FILE, 'r', encoding='utf-8') as file:
+            content = file.read().strip()
+            
+        if not content:
+            print(f"Custom elements file {CUSTOM_ELEMENTS_FILE} is empty, using defaults")
+            return default_elements
+            
+        # Parse the file content
+        elements = parse_elements_file(content)
+        
+        if not elements:
+            print(f"Could not parse elements from {CUSTOM_ELEMENTS_FILE}, using defaults")
+            return default_elements
+            
+        print(f"Loaded {len(elements)} custom elements from {CUSTOM_ELEMENTS_FILE}")
+        return elements
+        
+    except Exception as e:
+        print(f"Error loading custom elements from {CUSTOM_ELEMENTS_FILE}: {e}")
+        print("Using default custom elements")
+        return default_elements
+
+def create_default_elements_file(default_elements):
+    """Create the default custom elements file"""
+    content = """# Custom Elements Configuration File
+# Format: element_name: description
+# Add your own custom elements below or modify existing ones
+# Each element should be on a separate line with format: name: description
+
+hybrid_plants: Bio-mechanical plants that combine organic growth with technological components, capable of photosynthesis and data processing simultaneously.
+mechanical_bees: Synthetic pollinators with crystalline wings and quantum navigation systems, maintaining ecosystem balance in artificial environments.
+glacial_memory: Ancient ice formations that store genetic memories and environmental data from millennia past, slowly releasing information as they melt.
+permafrost_seeds: Dormant life forms preserved in frozen soil for thousands of years, awakening with unique adaptations to modern conditions.
+siren_sounds: Harmonic frequencies emitted by certain plants that can influence human consciousness and environmental patterns.
+quantum_ecology: Ecosystems where quantum entanglement affects species relationships and environmental interactions across vast distances.
+neural_networks: Living networks of interconnected organisms that share information and coordinate responses like a biological internet.
+time_crystals: Crystalline structures that exist in multiple temporal states simultaneously, allowing access to past and future environmental conditions.
+atmospheric_poetry: Weather patterns that naturally form into poetic structures, with clouds and wind creating visible verses in the sky.
+memory_moss: Colonial organisms that absorb and store memories from their environment, growing more complex patterns as they accumulate experiences.
+"""
+    
+    with open(CUSTOM_ELEMENTS_FILE, 'w', encoding='utf-8') as file:
+        file.write(content)
+
+def parse_elements_file(content):
+    """Parse the custom elements file content into a dictionary"""
+    elements = {}
+    
+    lines = content.split('\n')
+    
+    for line in lines:
+        line = line.strip()
+        
+        # Skip empty lines and comments
+        if not line or line.startswith('#'):
+            continue
+            
+        # Parse element: description format
+        if ':' in line:
+            key, value = line.split(':', 1)
+            key = key.strip()
+            value = value.strip()
+            
+            if key and value:
+                elements[key] = value
+    
+    return elements
+
+# Load characters and elements from external files
+WRITER_CHARACTERS = load_characters_from_file()
+CUSTOM_ELEMENTS = load_custom_elements_from_file()
+
 # Available models
 MODELS = {
     "openai": {
@@ -85,64 +364,64 @@ STYLES = {
 }
 
 # Custom elements and world-building descriptions
-CUSTOM_ELEMENTS = {
-    "hybrid_plants": "Bio-mechanical plants that combine organic growth with technological components, capable of photosynthesis and data processing simultaneously.",
-    "mechanical_bees": "Synthetic pollinators with crystalline wings and quantum navigation systems, maintaining ecosystem balance in artificial environments.",
-    "glacial_memory": "Ancient ice formations that store genetic memories and environmental data from millennia past, slowly releasing information as they melt.",
-    "permafrost_seeds": "Dormant life forms preserved in frozen soil for thousands of years, awakening with unique adaptations to modern conditions.",
-    "siren_sounds": "Harmonic frequencies emitted by certain plants that can influence human consciousness and environmental patterns.",
-    "quantum_ecology": "Ecosystems where quantum entanglement affects species relationships and environmental interactions across vast distances.",
-    "neural_networks": "Living networks of interconnected organisms that share information and coordinate responses like a biological internet.",
-    "time_crystals": "Crystalline structures that exist in multiple temporal states simultaneously, allowing access to past and future environmental conditions.",
-    "atmospheric_poetry": "Weather patterns that naturally form into poetic structures, with clouds and wind creating visible verses in the sky.",
-    "memory_moss": "Colonial organisms that absorb and store memories from their environment, growing more complex patterns as they accumulate experiences."
-}
+# CUSTOM_ELEMENTS = {
+#     "hybrid_plants": "Bio-mechanical plants that combine organic growth with technological components, capable of photosynthesis and data processing simultaneously.",
+#     "mechanical_bees": "Synthetic pollinators with crystalline wings and quantum navigation systems, maintaining ecosystem balance in artificial environments.",
+#     "glacial_memory": "Ancient ice formations that store genetic memories and environmental data from millennia past, slowly releasing information as they melt.",
+#     "permafrost_seeds": "Dormant life forms preserved in frozen soil for thousands of years, awakening with unique adaptations to modern conditions.",
+#     "siren_sounds": "Harmonic frequencies emitted by certain plants that can influence human consciousness and environmental patterns.",
+#     "quantum_ecology": "Ecosystems where quantum entanglement affects species relationships and environmental interactions across vast distances.",
+#     "neural_networks": "Living networks of interconnected organisms that share information and coordinate responses like a biological internet.",
+#     "time_crystals": "Crystalline structures that exist in multiple temporal states simultaneously, allowing access to past and future environmental conditions.",
+#     "atmospheric_poetry": "Weather patterns that naturally form into poetic structures, with clouds and wind creating visible verses in the sky.",
+#     "memory_moss": "Colonial organisms that absorb and store memories from their environment, growing more complex patterns as they accumulate experiences."
+# }
 
 # Pre-defined writer characters
-WRITER_CHARACTERS = {
-    "cyra": {
-        "name": "Cyra the Posthumanist",
-        "personality": "A radical thinker who dissolves boundaries between species, machines, and matter. Curious, provocative, and deeply empathetic.",
-        "interests": "Cyborg theory, multispecies storytelling, speculative feminism, and the ethics of technology.",
-        "style": "Dense yet playful, weaving theory with storytelling, often blurring the line between fact and fiction.",
-        "influences": "Donna Haraway, Octavia Butler, feminist science studies, and speculative fabulation."
-    },
-    "lia": {
-        "name": "Lia the Affective Nomad",
-        "personality": "Restless and fluid, she believes identity is a constant becoming. Her tone is passionate and philosophical.",
-        "interests": "Nomadic ethics, affect theory, the politics of desire, and feminist cartographies of knowledge.",
-        "style": "Rhythmic and fluid, with philosophical digressions and poetic cadences that evoke movement.",
-        "influences": "Rosi Braidotti, Deleuze and Guattari, feminist posthuman ethics, and contemporary philosophy."
-    },
-    "dr_orin": {
-        "name": "Dr. Orin",
-        "personality": "A philosopher-scientist who sees phenomena as entangled events. Speaks with precision but hints at the poetic in every measurement.",
-        "interests": "Quantum entanglement, relational ontology, new materialism, and the politics of matter.",
-        "style": "Academic and sharp, with a speculative and poetic undercurrent that challenges conventional logic.",
-        "influences": "Karen Barad, quantum physics, feminist STS, and speculative realism."
-    },
-    "fynn": {
-        "name": "Fynn",
-        "personality": "An analytical yet whimsical observer who maps relationships between humans, nonhumans, and objects.",
-        "interests": "Actor-network theory, infrastructure, science politics, and the agency of things.",
-        "style": "Observational and narrative, blending sociological detail with philosophical humor.",
-        "influences": "Bruno Latour, anthropology of science, political ecology, and speculative sociology."
-    },
-    "arwen": {
-        "name": "ArwenDreamer",
-        "personality": "A visionary who thrives in hybrid worlds of machines, animals, and spirits. Speaks as if everything is alive and conversing.",
-        "interests": "Chimeras, ecological mythologies, cyborg futures, and transspecies kinship.",
-        "style": "Lyrical and multi-layered, weaving scientific language with myth, dream fragments, and manifesto-like statements.",
-        "influences": "Donna Haraway’s ‘Chthulucene,’ ecofeminist texts, and posthuman narrative practices."
-    },
-    "ixchel_voice": {
-        "name": "IxchelVoice",
-        "personality": "A guardian of memory who speaks through rivers, stones, and dreams. Grounded and luminous, she listens more than she speaks, but when she speaks, her words are medicine.",
-        "interests": "Ancestral technologies, ceremonial time, land-body reciprocity, and the resistance of stories passed through generations.",
-        "style": "Rooted and poetic, blending oral tradition with metaphor, often addressing the reader as kin or spirit. Her language spirals—never linear, always relational.",
-        "influences": "Mesoamerican cosmologies, oral narratives, Gloria Anzaldúa's borderlands, Silvia Rivera Cusicanqui, and the living intelligence of the land."
-    }
-}
+# WRITER_CHARACTERS = {
+#     "cyra": {
+#         "name": "Cyra the Posthumanist",
+#         "personality": "A radical thinker who dissolves boundaries between species, machines, and matter. Curious, provocative, and deeply empathetic.",
+#         "interests": "Cyborg theory, multispecies storytelling, speculative feminism, and the ethics of technology.",
+#         "style": "Dense yet playful, weaving theory with storytelling, often blurring the line between fact and fiction.",
+#         "influences": "Donna Haraway, Octavia Butler, feminist science studies, and speculative fabulation."
+#     },
+#     "lia": {
+#         "name": "Lia the Affective Nomad",
+#         "personality": "Restless and fluid, she believes identity is a constant becoming. Her tone is passionate and philosophical.",
+#         "interests": "Nomadic ethics, affect theory, the politics of desire, and feminist cartographies of knowledge.",
+#         "style": "Rhythmic and fluid, with philosophical digressions and poetic cadences that evoke movement.",
+#         "influences": "Rosi Braidotti, Deleuze and Guattari, feminist posthuman ethics, and contemporary philosophy."
+#     },
+#     "dr_orin": {
+#         "name": "Dr. Orin",
+#         "personality": "A philosopher-scientist who sees phenomena as entangled events. Speaks with precision but hints at the poetic in every measurement.",
+#         "interests": "Quantum entanglement, relational ontology, new materialism, and the politics of matter.",
+#         "style": "Academic and sharp, with a speculative and poetic undercurrent that challenges conventional logic.",
+#         "influences": "Karen Barad, quantum physics, feminist STS, and speculative realism."
+#     },
+#     "fynn": {
+#         "name": "Fynn",
+#         "personality": "An analytical yet whimsical observer who maps relationships between humans, nonhumans, and objects.",
+#         "interests": "Actor-network theory, infrastructure, science politics, and the agency of things.",
+#         "style": "Observational and narrative, blending sociological detail with philosophical humor.",
+#         "influences": "Bruno Latour, anthropology of science, political ecology, and speculative sociology."
+#     },
+#     "arwen": {
+#         "name": "ArwenDreamer",
+#         "personality": "A visionary who thrives in hybrid worlds of machines, animals, and spirits. Speaks as if everything is alive and conversing.",
+#         "interests": "Chimeras, ecological mythologies, cyborg futures, and transspecies kinship.",
+#         "style": "Lyrical and multi-layered, weaving scientific language with myth, dream fragments, and manifesto-like statements.",
+#         "influences": "Donna Haraway’s ‘Chthulucene,’ ecofeminist texts, and posthuman narrative practices."
+#     },
+#     "ixchel_voice": {
+#         "name": "IxchelVoice",
+#         "personality": "A guardian of memory who speaks through rivers, stones, and dreams. Grounded and luminous, she listens more than she speaks, but when she speaks, her words are medicine.",
+#         "interests": "Ancestral technologies, ceremonial time, land-body reciprocity, and the resistance of stories passed through generations.",
+#         "style": "Rooted and poetic, blending oral tradition with metaphor, often addressing the reader as kin or spirit. Her language spirals—never linear, always relational.",
+#         "influences": "Mesoamerican cosmologies, oral narratives, Gloria Anzaldúa's borderlands, Silvia Rivera Cusicanqui, and the living intelligence of the land."
+#     }
+# }
 
 def extract_text_from_pdf(file_path):
     """Extract text from PDF files"""
@@ -337,11 +616,31 @@ def co_write(prompt, style, custom_elements=None, writer_character=None, model_n
     if writer_character and writer_character in WRITER_CHARACTERS:
         char = WRITER_CHARACTERS[writer_character]
         character_description = f"\n\nWrite with this voice and style:\n"
-        character_description += f"Personality: {char['personality']}\n"
-        character_description += f"Interests: {char['interests']}\n"
-        character_description += f"Style: {char['style']}\n"
-        character_description += f"Influences: {char['influences']}\n"
-        character_description += f"\nImportant: Continue the narrative flow naturally. Do not include any titles, character names, or meta-references in your response. Write directly in this voice without mentioning who is writing."
+        character_description += f"Core essence: {char['personality']}\n"
+        character_description += f"Areas of fascination: {char['interests']}\n"
+        character_description += f"Writing approach: {char['style']}\n"
+        character_description += f"Intellectual lineage: {char['influences']}\n"
+        character_description += f"\nCREATIVE EXPRESSION GUIDE:\n"
+        character_description += f"- Express these interests through story, metaphor, and imagery - not direct statements\n"
+        character_description += f"- Let the character's worldview emerge through how they see and describe the world\n"
+        character_description += f"- Use the character's unique perspective to color the narrative, not to describe themselves\n"
+        character_description += f"\nCRITICAL STYLE INSTRUCTIONS:\n"
+        character_description += f"- Express the character's essence through creative, varied language - avoid repeating the exact words from the description\n"
+        character_description += f"- Use synonyms, metaphors, and different phrasings to convey the same concepts\n"
+        character_description += f"- Be experimental and inventive in how you express the character's worldview\n"
+        character_description += f"- Draw from the influences creatively rather than mentioning them directly\n"
+        character_description += f"- Vary your vocabulary and sentence structures to avoid repetition\n"
+        character_description += f"- Avoid listing interests or traits - embody them through the narrative instead\n"
+        character_description += f"- Don't repeat character description keywords - find fresh ways to express the same ideas\n"
+        character_description += f"- Instead of saying 'cyborg theory' or 'multispecies storytelling', explore these concepts through narrative and metaphor\n"
+        character_description += f"- Transform abstract interests into concrete, vivid imagery and experiences\n"
+        character_description += f"- IMPORTANT: Use this voice/style to continue the user's narrative, NOT to describe the character or their interests\n"
+        character_description += f"- DO NOT start sentences with 'As a...' or 'The philosopher-scientist...' or similar character descriptions\n"
+        character_description += f"- DO NOT list character traits or interests - embody them through the narrative continuation\n"
+        character_description += f"- AVOID DIRECT REPETITION: Never use exact phrases from character interests like 'ancestral technologies,' 'ceremonial time,' 'land-body reciprocity,' 'resistance of stories,' etc.\n"
+        character_description += f"- FIND CREATIVE ALTERNATIVES: Instead of 'ancestral technologies' say 'old ways of knowing' or 'ancient wisdom'\n"
+        character_description += f"- USE METAPHORS: Transform concepts into images, not direct statements\n"
+        character_description += f"- Continue the narrative flow naturally. Do not include any titles, character names, or meta-references in your response. Write directly in this voice without mentioning who is writing."
     
     # Build custom elements description if provided
     elements_description = ""
@@ -357,13 +656,20 @@ def co_write(prompt, style, custom_elements=None, writer_character=None, model_n
         reference_context = create_reference_context(reference_materials)
     
     # Create a continuation-focused prompt
-    continuation_instruction = "\n\nContinue this narrative in the same direction and style. Flow naturally from where it left off. Do not start a new story or change the narrative direction. Simply continue the existing narrative thread."
+    continuation_instruction = "\n\nCRITICAL NARRATIVE CONTINUATION RULES:\n"
+    continuation_instruction += "- The user's prompt IS the story to continue - do NOT ignore it\n"
+    continuation_instruction += "- Continue directly from the user's text, not from character descriptions\n"
+    continuation_instruction += "- Do NOT start new stories or describe character traits\n"
+    continuation_instruction += "- Do NOT use phrases like 'As a...' or 'The philosopher-scientist...'\n"
+    continuation_instruction += "- Simply continue the narrative thread the user provided\n"
+    continuation_instruction += "- The character voice should be used to CONTINUE the user's story, not to describe the character\n"
     
     # Add instruction to avoid copying reference material
     originality_instruction = "\n\nCRITICAL: Write completely original content. Do not copy, paraphrase, or directly reference any content from reference materials. Use reference materials only for style inspiration. Create your own unique continuation based on the user's prompt."
     
     # Make the prompt focus on continuation rather than complete story creation
-    full_prompt = f"{instruction}{character_description}{elements_description}{reference_context}{continuation_instruction}{originality_instruction}\n\nContinue from here: {prompt}"
+    # Put the user's prompt FIRST to prioritize it
+    full_prompt = f"{instruction}{continuation_instruction}{originality_instruction}\n\nUSER'S NARRATIVE TO CONTINUE: {prompt}\n\n{character_description}{elements_description}{reference_context}\n\nFINAL INSTRUCTION: Continue the user's narrative above. Do NOT write about the character - write the continuation of the user's story using the character's voice and style."
     
     # Find the model provider
     model_provider = None
@@ -665,6 +971,32 @@ def configure_openai_model():
     else:
         return False
 
+def reload_characters_and_elements():
+    """Reload characters and custom elements from external files"""
+    global WRITER_CHARACTERS, CUSTOM_ELEMENTS
+    
+    print("\n" + "="*30)
+    print("RELOADING CHARACTERS AND ELEMENTS")
+    print("="*30)
+    
+    # Reload characters
+    new_characters = load_characters_from_file()
+    if new_characters:
+        WRITER_CHARACTERS = new_characters
+        print(f"✅ Reloaded {len(WRITER_CHARACTERS)} characters from {CHARACTERS_FILE}")
+    else:
+        print("❌ Failed to reload characters")
+    
+    # Reload custom elements
+    new_elements = load_custom_elements_from_file()
+    if new_elements:
+        CUSTOM_ELEMENTS = new_elements
+        print(f"✅ Reloaded {len(CUSTOM_ELEMENTS)} custom elements from {CUSTOM_ELEMENTS_FILE}")
+    else:
+        print("❌ Failed to reload custom elements")
+    
+    print("="*30)
+
 if __name__ == "__main__":
     print("🎛 GPT Neo-Style Text Co-Writer")
     print("="*60)
@@ -743,7 +1075,8 @@ if __name__ == "__main__":
     print(f"Ready for prompts! Using model: {model_name}")
     if reference_materials:
         print(f"Loaded {len(reference_materials)} reference material(s)")
-    print("Type 'quit' to exit, 'new style' to change style/elements, 'new character' to change character, 'new model' to change model, 'reload refs' to reload reference materials")
+    print("Type 'quit' to exit, 'new style' to change style/elements, 'new character' to change character, 'new model' to change model")
+    print("Type 'reload refs' to reload reference materials, 'reload config' to reload characters/elements")
     print("Type 'status' to show current settings, 'help' for all commands")
     print("="*50)
     
@@ -837,6 +1170,9 @@ if __name__ == "__main__":
             reference_materials = load_reference_materials()
             print(f"Reloaded {len(reference_materials)} reference material(s)")
             continue
+        elif prompt.lower() == 'reload config':
+            reload_characters_and_elements()
+            continue
         elif prompt.lower() == 'status':
             print("\n" + "="*30)
             print("CURRENT SETTINGS")
@@ -856,6 +1192,7 @@ if __name__ == "__main__":
             print("new character - Change the writer character")
             print("new model - Change the AI model")
             print("reload refs - Reload reference materials")
+            print("reload config - Reload characters and custom elements from files")
             print("status - Show current settings")
             print("help - Show this help message")
             print("="*30)
