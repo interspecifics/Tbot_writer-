@@ -1,316 +1,230 @@
-# Text Co-Writer By INTERSPECIFICS
+# Text Co-Writer By Interspecifics 
 
-AI text co-writing tool that helps you continue and expand your creative writing with multiple AI models, unique writer personalities, and customizable elements. This tool is designed for writers who want to collaborate with AI while maintaining their creative voice and narrative direction. 
+A technical explanation of the AI text co-writing system that helps you continue and expand your creative writing with multiple AI models, unique writer personalities, and customizable elements.
 
-## What is Text Co-Writer By INTERSPECIFICS?
+## System Architecture
 
-This is an intelligent writing assistant that:
-- **Continues your story** in the same direction and style you've established
-- **Offers multiple AI models** (local and cloud-based) for different writing needs
-- **Features unique writer characters** with distinct personalities and writing styles
-- **Supports reference materials** for style inspiration (without copying content)
-- **Provides continuous operation** so you can keep writing without restarting
-- **Includes sci-fi world-building elements** for creative enhancement
-- **Smart model detection** - only shows models you actually have installed
-- **Automatic API key configuration** for cloud-based models
+The Text Co-Writer is built around a modular architecture that combines multiple AI providers, customizable writing styles, and intelligent prompt engineering to create a collaborative writing experience.
 
-## Key Features
+### Core Components
 
-### 🤖 Multiple AI Models
-- **Local Models (Free)**: neural-chat, mistral, llama2, codellama - run entirely on your computer
-- **Cloud Models**: OpenAI GPT-3.5/4, Hugging Face models - require API keys
-- **Smart Detection**: Only shows models you have installed locally
-- **Easy Switching**: Change models during your writing session
-- **API Key Management**: Automatic prompting and validation for cloud models
+1. **Multi-Provider AI Integration**: Supports OpenAI, Ollama (local models), and Hugging Face APIs
+2. **Dynamic Model Detection**: Automatically detects available local models and validates API keys
+3. **Character-Driven Writing**: Six pre-defined writer personalities with distinct voices and styles
+4. **Style System**: Five writing styles with specific instructions for narrative continuation
+5. **Reference Material Processing**: Extracts and processes PDF, DOCX, and TXT files for style inspiration
+6. **Interactive Command System**: Real-time switching between models, styles, and characters
 
-### 👥 Writer Characters
-Six pre-defined fictional writer personalities, each with unique voices:
+## How the Co-Writing Process Works
 
-1. **Cyra the Posthumanist**: Radical thinker who dissolves boundaries between species, machines, and matter
-2. **Lia the Affective Nomad**: Restless and fluid, believes identity is a constant becoming  
-3. **Dr. Orin**: Philosopher-scientist who sees phenomena as entangled events
-4. **Fynn**: Analytical yet whimsical observer who maps relationships between humans, nonhumans, and objects
-5. **ArwenDreamer**: Visionary who thrives in hybrid worlds of machines, animals, and spirits
-6. **IxchelVoice**: A guardian of memory who speaks through rivers, stones, and dreams. Grounded and luminous, she listens more than she speaks, but when she speaks, her words are medicine
+### 1. Prompt Engineering Pipeline
 
-### 🎨 Writing Styles
+The system constructs sophisticated prompts using multiple layers:
+
+```python
+# Core instruction based on writing style
+instruction = STYLES.get(style.lower(), STYLES["essay"])
+
+# Character personality and voice
+character_description = f"Write with this voice and style:\n"
+character_description += f"Personality: {char['personality']}\n"
+character_description += f"Interests: {char['interests']}\n"
+character_description += f"Style: {char['style']}\n"
+character_description += f"Influences: {char['influences']}\n"
+
+# Custom world-building elements
+elements_description = "Incorporate these elements naturally:\n"
+for element in custom_elements:
+    elements_description += f"- {element}: {CUSTOM_ELEMENTS[element]}\n"
+
+# Reference material context (style inspiration only)
+reference_context = create_reference_context(reference_materials)
+
+# Continuation-focused instruction
+continuation_instruction = "Continue this narrative in the same direction and style. Flow naturally from where it left off."
+
+# Originality protection
+originality_instruction = "Write completely original content. Do not copy or paraphrase reference materials."
+```
+
+### 2. AI Model Selection and Routing
+
+The system intelligently routes requests to the appropriate AI provider:
+
+- **Local Models (Ollama)**: `neural-chat`, `mistral`, `llama2`, `codellama` - run entirely on your computer
+- **Cloud Models (OpenAI)**: `gpt-3.5-turbo-instruct`, `gpt-4` - require API keys
+- **Hugging Face Models**: Various models via Hugging Face API
+
+Smart detection ensures only installed local models are shown as options.
+
+### 3. Writer Character System
+
+Six fictional writer personalities, each with unique characteristics:
+
+#### Cyra the Posthumanist
+- **Personality**: Radical thinker who dissolves boundaries between species, machines, and matter
+- **Style**: Dense yet playful, weaving theory with storytelling
+- **Influences**: Donna Haraway, Octavia Butler, feminist science studies
+
+#### Lia the Affective Nomad
+- **Personality**: Restless and fluid, believes identity is a constant becoming
+- **Style**: Rhythmic and fluid, with philosophical digressions and poetic cadences
+- **Influences**: Rosi Braidotti, Deleuze and Guattari, feminist posthuman ethics
+
+#### Dr. Orin
+- **Personality**: Philosopher-scientist who sees phenomena as entangled events
+- **Style**: Academic and sharp, with speculative and poetic undercurrents
+- **Influences**: Karen Barad, quantum physics, feminist STS
+
+#### Fynn
+- **Personality**: Analytical yet whimsical observer who maps relationships between humans, nonhumans, and objects
+- **Style**: Observational and narrative, blending sociological detail with philosophical humor
+- **Influences**: Bruno Latour, anthropology of science, political ecology
+
+#### ArwenDreamer
+- **Personality**: Visionary who thrives in hybrid worlds of machines, animals, and spirits
+- **Style**: Lyrical and multi-layered, weaving scientific language with myth and dream fragments
+- **Influences**: Donna Haraway's 'Chthulucene,' ecofeminist texts
+
+#### IxchelVoice
+- **Personality**: Guardian of memory who speaks through rivers, stones, and dreams
+- **Style**: Rooted and poetic, blending oral tradition with metaphor
+- **Influences**: Mesoamerican cosmologies, Gloria Anzaldúa, Silvia Rivera Cusicanqui
+
+### 4. Writing Style System
+
+Five distinct writing styles with specific continuation instructions:
+
 - **Sci-fi**: Futuristic science fiction with technological elements
 - **Peer-review**: Academic, analytical writing style
 - **Essay**: Formal reflective essay style
 - **Poetry**: Contemporary free verse poetry
 - **Journalistic**: New York Times feature article style
 
-### 🌟 Custom Elements
-Include sci-fi world-building elements like:
-- `hybrid_plants`, `mechanical_bees`, `glacial_memory`
-- `permafrost_seeds`, `siren_sounds`, `quantum_ecology`
-- `neural_networks`, `time_crystals`, `atmospheric_poetry`
+### 5. Custom Elements and World-Building
+
+Ten sci-fi world-building elements that can be incorporated:
+
+- `hybrid_plants`: Bio-mechanical plants combining organic growth with technological components
+- `mechanical_bees`: Synthetic pollinators with crystalline wings and quantum navigation
+- `glacial_memory`: Ancient ice formations storing genetic memories and environmental data
+- `permafrost_seeds`: Dormant life forms preserved in frozen soil for thousands of years
+- `siren_sounds`: Harmonic frequencies emitted by plants that influence consciousness
+- `quantum_ecology`: Ecosystems where quantum entanglement affects species relationships
+- `neural_networks`: Living networks of interconnected organisms sharing information
+- `time_crystals`: Crystalline structures existing in multiple temporal states simultaneously
+- `atmospheric_poetry`: Weather patterns naturally forming into poetic structures
 - `memory_moss`: Colonial organisms that absorb and store memories from their environment
 
-### 📚 Reference Materials
-- Support for **PDF**, **DOCX**, and **TXT** files
-- Used for **style inspiration only** - AI won't copy content
-- Helps maintain consistent writing tone and approach
+### 6. Reference Material Processing
 
-### 🎮 Interactive Commands
-- `quit` - Exit the program
-- `new style` - Change writing style and custom elements
-- `new character` - Change writer character
-- `new model` - Change AI model (with API key configuration)
-- `reload refs` - Reload reference materials
-- `status` - Show current settings
-- `help` - Show all available commands
-
-## Installation
-
-### macOS Installation
-
-1. **Download the project** and navigate to the directory:
-   ```bash
-   cd /path/to/Tbot_writer-
-   ```
-
-2. **Make the installation script executable**:
-   ```bash
-   chmod +x install_mac.sh
-   ```
-
-3. **Run the installation script**:
-   ```bash
-   ./install_mac.sh
-   ```
-
-The script will automatically:
-- Install Homebrew (if needed)
-- Install Python and pip
-- Create a virtual environment
-- Install required Python packages
-- Install and configure Ollama
-- Download AI models (neural-chat, mistral, llama2)
-- Create configuration files
-- Set up reference materials folder
-
-### Windows Installation
-
-1. **Download the project** and navigate to the directory:
-   ```cmd
-   cd C:\path\to\Tbot_writer-
-   ```
-
-2. **Run the installation script** as Administrator:
-
-   **For PowerShell (recommended):**
-   ```powershell
-   .\install_windows.ps1
-   ```
-
-   **For Command Prompt:**
-   ```cmd
-   install_windows_fixed.bat
-   ```
-
-The script will automatically:
-- **Install Python** (if not found) via winget or direct download
-- Install required Python packages
-- Download and install Ollama
-- Download AI models
-- Create configuration files
-- Set up reference materials folder
-
-## Quick Start
-
-### macOS
-1. **Start Ollama** (if not already running):
-   ```bash
-   brew services start ollama
-   ```
-
-2. **Run the writer**:
-   ```bash
-   ./start_writer.sh
-   ```
-
-### Windows
-1. **Start Ollama** (if not already running):
-   ```cmd
-   ollama serve
-   ```
-
-2. **Run the writer**:
-   ```powershell
-   .\start_writer.ps1
-   ```
-   or:
-   ```cmd
-   start_writer.bat
-   ```
-   or manually:
-   ```cmd
-   python text_co_writer.py
-   ```
-
-## How to Use
-
-1. **Choose your settings** when prompted:
-   - Writing style (sci-fi, academic, poetry, etc.)
-   - AI model (numbered selection available)
-   - Writer character (numbered selection available)
-   - Custom elements (optional)
-
-2. **Enter your prompt** - the text you want the AI to continue from
-
-3. **Get AI continuation** - the AI will continue your narrative in the same direction
-
-4. **Use commands** during your session:
-   - `quit`: Exit the program
-   - `new style`: Change writing style and elements
-   - `new character`: Change writer character
-   - `new model`: Switch to different AI model (with API key configuration)
-   - `reload refs`: Reload reference materials
-   - `status`: Show current settings
-   - `help`: Show all available commands
-
-## Available Models
-
-### Local Models (Free, No API Key Required)
-- **neural-chat**: Intel's Neural Chat model (fast, good for quick responses)
-- **mistral**: Mistral AI's 7B model (balanced performance and quality)
-- **llama2**: Meta's Llama 2 model (7B parameters, high quality)
-- **codellama**: Code-optimized Llama model (if installed)
-
-### Cloud Models (Require API Keys)
-- **gpt-3.5-turbo-instruct**: OpenAI's efficient model
-- **gpt-4**: OpenAI's latest high-quality model
-- **meta-llama/Llama-2-7b-chat-hf**: Llama 2 7B Chat on Hugging Face
-- **microsoft/DialoGPT-medium**: Microsoft's conversational model
-
-## Configuration
-
-Edit `config.py` to customize your settings:
+The system processes reference materials for style inspiration only:
 
 ```python
-# API Keys (add your keys here)
-OPENAI_API_KEY = ""  # Get from https://platform.openai.com/api-keys
-HUGGINGFACE_API_KEY = ""  # Get from https://huggingface.co/settings/tokens
-
-# Ollama Configuration
-OLLAMA_BASE_URL = "http://localhost:11434"
-
-# Default settings
-DEFAULT_MODEL = "neural-chat"
-DEFAULT_STYLE = "sci-fi"
-DEFAULT_CHARACTER = "cyra"
+def load_reference_materials():
+    """Load all reference materials from the reference folder"""
+    reference_texts = []
+    
+    for file_path in glob.glob(f"{REFERENCE_FOLDER}/*"):
+        if any(file_path.lower().endswith(ext) for ext in SUPPORTED_FORMATS):
+            text = extract_text_from_file(file_path)
+            if text:
+                reference_texts.append(text)
+    
+    return reference_texts
 ```
 
-**Note**: The program will automatically prompt you for API keys when you select cloud-based models.
+**Supported Formats**: PDF, DOCX, DOC, TXT
+**Purpose**: Style inspiration only - AI is explicitly instructed not to copy content
 
-## Smart Model Detection
+### 7. Interactive Command System
 
-The program automatically detects which models you have installed locally and only shows those as available options. This prevents errors when trying to use models that aren't installed.
+Real-time commands for dynamic configuration:
 
-- **Local models**: Only shows models you have pulled with `ollama pull`
-- **Cloud models**: Always available (require API keys)
-- **Automatic validation**: Tests API keys before saving them
+- `quit`: Exit the program
+- `new style`: Change writing style and custom elements
+- `new character`: Change writer character
+- `new model`: Change AI model (with API key configuration)
+- `reload refs`: Reload reference materials
+- `status`: Show current settings
+- `help`: Show all available commands
 
-## Reference Materials
+## Technical Implementation Details
 
-Add your own reference materials to the `reference_materials/` folder:
-- **PDF files** (.pdf) - Research papers, books, articles
-- **Word documents** (.docx, .doc) - Manuscripts, notes
-- **Text files** (.txt) - Any plain text content
+### API Integration
 
-The AI will use these as **style inspiration only** - it won't copy content but will adopt the writing style and approach.
+The system uses different API clients based on the selected model:
 
-## Project Structure
+```python
+def call_openai_model(prompt, model_name, max_tokens=300, temperature=0.3):
+    client = openai.OpenAI(api_key=OPENAI_API_KEY)
+    response = client.chat.completions.create(
+        model=model_name,
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=max_tokens,
+        temperature=temperature
+    )
+    return response.choices[0].message.content
 
+def call_ollama_model(prompt, model_name, max_tokens=300, temperature=0.3):
+    response = requests.post(
+        f"{OLLAMA_BASE_URL}/api/generate",
+        json={
+            "model": model_name,
+            "prompt": prompt,
+            "stream": False,
+            "options": {
+                "num_predict": max_tokens,
+                "temperature": temperature
+            }
+        }
+    )
+    return response.json()["response"]
 ```
-Tbot_writer-/
-├── text_co_writer.py          # Main application
-├── config.py                  # Configuration file
-├── requirements.txt           # Python dependencies
-├── README.md                  # This file
-├── install_mac.sh            # macOS installation script
-├── install_windows.ps1       # Windows PowerShell installer
-├── install_windows_fixed.bat # Windows batch installer
-├── start_writer.sh           # macOS startup script
-├── start_writer.ps1          # Windows PowerShell startup
-├── start_writer.bat          # Windows batch startup
-├── debug_test.py             # Debugging utility
-├── fix_python_alias.ps1      # Python alias fix for Windows
-├── reference_materials/       # Reference files folder
-└── venv/                     # Virtual environment (macOS)
+
+### Configuration Management
+
+Dynamic configuration loading with fallback defaults:
+
+```python
+try:
+    from config import *
+    print("📁 Configuration loaded from config.py")
+except ImportError:
+    print("📁 No config.py found, using default settings")
+    OPENAI_API_KEY = ""
+    HUGGINGFACE_API_KEY = ""
+    OLLAMA_BASE_URL = "http://localhost:11434"
+    DEFAULT_MODEL = "neural-chat"
+    DEFAULT_STYLE = "sci-fi"
+    DEFAULT_CHARACTER = "cyra"
 ```
 
-## Troubleshooting
+### Error Handling and Validation
 
-### Common Issues
+- **API Key Validation**: Automatic prompting and validation for cloud models
+- **Model Availability**: Smart detection of installed local models
+- **File Processing**: Graceful handling of unsupported file formats
+- **Network Issues**: Timeout handling and fallback options
 
-1. **Ollama not running**:
-   - macOS: `brew services start ollama`
-   - Windows: `ollama serve`
+## Key Design Principles
 
-2. **Model not found**:
-   ```bash
-   ollama pull model-name
-   ```
+1. **Continuation-Focused**: Designed to continue existing narratives rather than start new ones
+2. **Style Preservation**: Maintains the user's established writing direction and tone
+3. **Originality Protection**: Explicit instructions prevent copying of reference materials
+4. **Modular Architecture**: Easy to add new models, characters, or styles
+5. **User Control**: Real-time switching between different configurations
+6. **Privacy-First**: Local models available for completely private writing
 
-3. **API errors**:
-   - Check your API keys in `config.py`
-   - Ensure you have internet connection for cloud models
-   - The program will prompt you for API keys when needed
+## Performance Considerations
 
-4. **Virtual environment issues** (macOS):
-   ```bash
-   source venv/bin/activate
-   ```
+- **Token Limits**: Configurable max_tokens (default: 300) for response length
+- **Temperature Control**: Adjustable creativity level (default: 0.3)
+- **Streaming Support**: Ollama models support streaming responses
+- **Caching**: Reference materials are loaded once and cached during session
+- **Error Recovery**: Graceful fallbacks when models or APIs are unavailable
 
-5. **Reference materials not loading**:
-   - Check file formats (PDF, DOCX, TXT only)
-   - Ensure files are in the `reference_materials/` folder
-
-6. **AI copying reference content**:
-   - Reference materials are for style inspiration only
-   - The AI is instructed not to copy content
-
-### Windows-Specific Issues
-
-- **Python not found**: Installer now attempts automatic Python installation via winget or direct download
-- **Permission errors**: Run installer as Administrator
-- **VS Code terminal issues**: Use Command Prompt instead of PowerShell
-- **Package installation fails**: Try updating pip first: `python -m pip install --upgrade pip`
-
-### System Requirements
-
-- **macOS**: 10.15 or later, Python 3.7+, Homebrew
-- **Windows**: Windows 10 or later, Python 3.7+
-- **Both**: Ollama (for local models), Internet connection (for cloud models)
-
-## Dependencies
-
-- **openai**: OpenAI API client
-- **requests**: HTTP library for API calls
-- **PyPDF2**: PDF text extraction
-- **python-docx**: Word document text extraction
-
-## Virtual Environment (macOS)
-
-This project uses a virtual environment to avoid conflicts with system Python packages:
-- Created in the `venv/` directory
-- Activated automatically by `start_writer.sh`
-- Manual activation: `source venv/bin/activate`
-
-## Getting Help
-
-If you encounter issues:
-1. Check the troubleshooting section above
-2. Ensure all dependencies are installed
-3. Verify Ollama is running
-4. Check your internet connection for cloud models
-5. Review the configuration in `config.py`
-
-## License
-
-This project is open source and available under the MIT License.
+This architecture creates a sophisticated yet accessible co-writing system that balances AI assistance with human creative control, providing multiple pathways for collaborative storytelling and creative expression.
 
 
 
