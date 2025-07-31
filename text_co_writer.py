@@ -575,6 +575,7 @@ def call_ollama_model(prompt, model_name, max_tokens=300, temperature=0.3):
         }
         
         response = requests.post(url, json=payload, timeout=60)
+        #print(response)
         response.raise_for_status()
         
         result = response.json()
