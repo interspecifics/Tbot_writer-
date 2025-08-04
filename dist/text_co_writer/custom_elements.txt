@@ -1,0 +1,15 @@
+# Custom Elements Configuration File
+# Format: element_name: description
+# Add your own custom elements below or modify existing ones
+# Each element should be on a separate line with format: name: description
+
+hybrid_plants: Bio-mechanical plants that combine organic growth with technological components, capable of photosynthesis and data processing simultaneously.
+mechanical_bees: Synthetic pollinators with crystalline wings and quantum navigation systems, maintaining ecosystem balance in artificial environments.
+glacial_memory: Ancient ice formations that store genetic memories and environmental data from millennia past, slowly releasing information as they melt.
+permafrost_seeds: Dormant life forms preserved in frozen soil for thousands of years, awakening with unique adaptations to modern conditions.
+siren_sounds: Harmonic frequencies emitted by certain plants that can influence human consciousness and environmental patterns.
+quantum_ecology: Ecosystems where quantum entanglement affects species relationships and environmental interactions across vast distances.
+neural_networks: Living networks of interconnected organisms that share information and coordinate responses like a biological internet.
+time_crystals: Crystalline structures that exist in multiple temporal states simultaneously, allowing access to past and future environmental conditions.
+atmospheric_poetry: Weather patterns that naturally form into poetic structures, with clouds and wind creating visible verses in the sky.
+memory_moss: Colonial organisms that absorb and store memories from their environment, growing more complex patterns as they accumulate experiences.

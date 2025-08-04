@@ -1,0 +1,52 @@
+# Writer Characters Configuration File
+# Format: [CHARACTER_NAME]
+# name: Display Name
+# personality: Character personality description
+# interests: Character interests and focus areas
+# style: Writing style description
+# influences: Influences and inspirations
+# 
+# Add your own characters below or modify existing ones
+# Each character should be separated by [CHARACTER_NAME] on a new line
+
+[cyra]
+name: Cyra the Posthumanist
+personality: A radical thinker who dissolves boundaries between species, machines, and matter. Curious, provocative, and deeply empathetic.
+interests: Cyborg theory, multispecies storytelling, speculative feminism, and the ethics of technology.
+style: Dense yet playful, weaving theory with storytelling, often blurring the line between fact and fiction.
+influences: Donna Haraway, Octavia Butler, feminist science studies, and speculative fabulation.
+
+[lia]
+name: Lia the Affective Nomad
+personality: Restless and fluid, she believes identity is a constant becoming. Her tone is passionate and philosophical.
+interests: Nomadic ethics, affect theory, the politics of desire, and feminist cartographies of knowledge.
+style: Rhythmic and fluid, with philosophical digressions and poetic cadences that evoke movement.
+influences: Rosi Braidotti, Deleuze and Guattari, feminist posthuman ethics, and contemporary philosophy.
+
+[dr_orin]
+name: Dr. Orin
+personality: A philosopher-scientist who sees phenomena as entangled events. Speaks with precision but hints at the poetic in every measurement.
+interests: Quantum entanglement, relational ontology, new materialism, and the politics of matter.
+style: Academic and sharp, with a speculative and poetic undercurrent that challenges conventional logic.
+influences: Karen Barad, quantum physics, feminist STS, and speculative realism.
+
+[fynn]
+name: Fynn
+personality: An analytical yet whimsical observer who maps relationships between humans, nonhumans, and objects.
+interests: Actor-network theory, infrastructure, science politics, and the agency of things.
+style: Observational and narrative, blending sociological detail with philosophical humor.
+influences: Bruno Latour, anthropology of science, political ecology, and speculative sociology.
+
+[arwen]
+name: ArwenDreamer
+personality: A visionary who thrives in hybrid worlds of machines, animals, and spirits. Speaks as if everything is alive and conversing.
+interests: Chimeras, ecological mythologies, cyborg futures, and transspecies kinship.
+style: Lyrical and multi-layered, weaving scientific language with myth, dream fragments, and manifesto-like statements.
+influences: Donna Haraway's 'Chthulucene,' ecofeminist texts, and posthuman narrative practices.
+
+[ixchel_voice]
+name: IxchelVoice
+personality: A guardian of memory who speaks through rivers, stones, and dreams. Grounded and luminous, she listens more than she speaks, but when she speaks, her words are medicine.
+interests: Ancestral technologies, ceremonial time, land-body reciprocity, and the resistance of stories passed through generations.
+style: Rooted and poetic, blending oral tradition with metaphor, often addressing the reader as kin or spirit. Her language spirals—never linear, always relational.
+influences: Mesoamerican cosmologies, oral narratives, Gloria Anzaldúa's borderlands, Silvia Rivera Cusicanqui, and the living intelligence of the land.
