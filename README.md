@@ -1,5 +1,4 @@
-# Text Co-Writer By INTERSPECIFICS
-
+# Text Co-Writer
 An AI-powered writing assistant that continues your creative writing with unique character voices and customizable elements.
 
 ## Quick Start
