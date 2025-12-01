@@ -1,6 +1,13 @@
 @echo off
 setlocal enabledelayedexpansion
 
+REM Ensure we operate from the repository root (parent of this script folder)
+set "SCRIPT_DIR=%~dp0"
+pushd "%SCRIPT_DIR%\.."
+
+REM Create windows folder (for generated Windows artifacts)
+if not exist "windows" mkdir windows
+
 REM GPT Neo-Style Text Co-Writer - Windows Installation Script (VS Code Compatible)
 REM This script automatically installs all dependencies for the text co-writer
 
@@ -12,6 +19,7 @@ echo.
 REM Check if running on Windows
 if not "%OS%"=="Windows_NT" (
     echo [ERROR] This script is for Windows only. Use install_mac.sh for macOS.
+    popd
     exit /b 1
 )
 
@@ -50,6 +58,7 @@ if %errorlevel% neq 0 (
         echo Press any key to open Python download page...
         pause >nul
         start https://python.org/downloads/
+        popd
         exit /b 1
     )
     
@@ -114,6 +123,7 @@ if %errorlevel% neq 0 (
         echo Press any key to open Python download page...
         pause >nul
         start https://python.org/downloads/
+        popd
         exit /b 1
     )
     
@@ -155,15 +165,16 @@ if %errorlevel% neq 0 (
         echo Press any key to open Python download page...
         pause >nul
         start https://python.org/downloads/
+        popd
         exit /b 1
     ) else (
         echo [SUCCESS] Python installed successfully!
         python --version
     )
-    ) else (
-        echo [SUCCESS] Python already installed!
-        python --version
-    )
+) else (
+    echo [SUCCESS] Python already installed!
+    python --version
+)
     
 :python_installed
 
@@ -228,6 +239,7 @@ if %errorlevel% neq 0 (
     powershell -Command "Test-NetConnection -ComputerName github.com -Port 443" >nul 2>&1
     if %errorlevel% neq 0 (
         echo [ERROR] No internet connection. Please check your connection and try again.
+        popd
         exit /b 1
     )
     
@@ -240,6 +252,7 @@ if %errorlevel% neq 0 (
         echo [ERROR] Failed to download Ollama installer.
         echo Please download manually from: https://ollama.ai/download
         echo After installing Ollama, run this script again.
+        popd
         exit /b 1
     )
     
@@ -360,7 +373,7 @@ echo In this world, intelligence was not centralized, but distributed across fil
 
 echo [SUCCESS] Sample reference material created!
 
-REM Create a configuration file
+REM Create a configuration file (at repo root)
 echo [INFO] Creating configuration file...
 (
 echo # Configuration file for GPT Neo-Style Text Co-Writer
@@ -384,36 +397,36 @@ echo # PREFERRED_MODELS = ["neural-chat", "mistral", "llama2"]  # Order of prefe
 
 echo [SUCCESS] Configuration file created: config.py
 
-REM Create a quick start script
+REM Create a quick start script (in windows folder)
 echo [INFO] Creating quick start script...
 (
 echo @echo off
+echo setlocal
+echo set "SCRIPT_DIR=%%~dp0"
+echo pushd "%%SCRIPT_DIR%%\.."
 echo echo Starting GPT Neo-Style Text Co-Writer...
 echo echo Make sure Ollama is running: ollama serve
 echo echo.
 echo python text_co_writer.py
+echo set "code=%%errorlevel%%"
+echo popd
+echo if %%code%% neq 0 ^(
+echo   echo.
+echo   echo [ERROR] The program exited with an error.
+echo ^) else ^(
+echo   echo.
+echo   echo [INFO] Program finished successfully.
+echo ^)
 echo pause
-) > start_writer.bat
+echo endlocal
+) > windows\start_writer.bat
 
-echo [SUCCESS] Quick start script created: start_writer.bat
+echo [SUCCESS] Quick start script created: windows\start_writer.bat
 
-REM Create a README file
-echo [INFO] Creating README file...
+REM Create a Windows-specific README in the windows folder
+echo [INFO] Creating Windows README file...
 (
-echo # GPT Neo-Style Text Co-Writer
-echo.
-echo A powerful AI text co-writing tool with support for multiple models, writer characters, custom elements, and reference materials.
-echo.
-echo ## Features
-echo.
-echo - **Multiple AI Models**: OpenAI, Ollama ^(local^), and Hugging Face
-echo - **Writer Characters**: 5 pre-defined fictional writer personalities
-echo - **Custom Elements**: Sci-fi world-building elements
-echo - **Writing Styles**: Sci-fi, academic, poetry, journalistic, and more
-echo - **Reference Materials**: Support for PDF, DOCX, and TXT files ^(style inspiration only^)
-echo - **Narrative Continuation**: Continues your story in the same direction
-echo - **Continuous Operation**: Keep writing without restarting
-echo - **Numbered Selection**: Easy model and character selection by number
+echo # Windows Usage - GPT Neo-Style Text Co-Writer
 echo.
 echo ## Quick Start
 echo.
@@ -424,125 +437,17 @@ echo    ```
 echo.
 echo 2. **Run the writer**:
 echo    ```cmd
-echo    start_writer.bat
+echo    windows\start_writer.bat
 echo    ```
-echo    or manually:
-echo    ```cmd
-echo    python text_co_writer.py
+echo    or:
+echo    ```powershell
+echo    .\windows\start_writer.ps1
 echo    ```
-echo.
-echo ## Available Models
-echo.
-echo ### Local Models ^(Free^)
-echo - **neural-chat**: Fast, good for quick responses
-echo - **mistral**: Balanced performance and quality
-echo - **llama2**: High quality, larger model
-echo.
-echo ### Cloud Models ^(Require API Keys^)
-echo - **gpt-3.5-turbo-instruct**: OpenAI's model
-echo - **gpt-4**: OpenAI's latest model
-echo.
-echo ## Writer Characters
-echo.
-echo 1. **Cyra the Posthumanist**: Radical thinker who dissolves boundaries between species, machines, and matter
-echo 2. **Lia the Affective Nomad**: Restless and fluid, believes identity is a constant becoming
-echo 3. **Dr. Orin**: Philosopher-scientist who sees phenomena as entangled events
-echo 4. **Fynn**: Analytical yet whimsical observer who maps relationships between humans, nonhumans, and objects
-echo 5. **ArwenDreamer**: Visionary who thrives in hybrid worlds of machines, animals, and spirits
-echo.
-echo ## Custom Elements
-echo.
-echo Include sci-fi elements like:
-echo - hybrid_plants, mechanical_bees, glacial_memory
-echo - permafrost_seeds, siren_sounds, quantum_ecology
-echo - neural_networks, time_crystals, atmospheric_poetry
-echo.
-echo ## Reference Materials
-echo.
-echo Add your own reference materials to the `reference_materials\` folder:
-echo - **PDF files** ^(.pdf^) - Research papers, books, articles
-echo - **Word documents** ^(.docx, .doc^) - Manuscripts, notes
-echo - **Text files** ^(.txt^) - Any plain text content
-echo.
-echo The AI will use these as **style inspiration only** - it won't copy content but will adopt the writing style and approach.
-echo.
-echo ## Commands
-echo.
-echo - `quit`: Exit the program
-echo - `new style`: Change writing style and elements
-echo - `new character`: Change writer character ^(numbered selection available^)
-echo - `new model`: Switch to different AI model ^(numbered selection available^)
-echo - `reload refs`: Reload reference materials
-echo.
-echo ## Troubleshooting
-echo.
-echo 1. **Ollama not running**: `ollama serve`
-echo 2. **Model not found**: `ollama pull model-name`
-echo 3. **API errors**: Check your API keys in config.py
-echo 4. **Reference materials not loading**: Check file formats ^(PDF, DOCX, TXT only^)
-echo 5. **AI copying reference content**: Reference materials are for style inspiration only
-echo.
-echo ## Requirements
-echo.
-echo - Windows 10 or later
-echo - Python 3.7+
-echo - Ollama ^(for local models^)
-echo - Internet connection ^(for cloud models^)
-echo.
-echo ## Dependencies
-echo.
-echo - **openai**: OpenAI API client
-echo - **requests**: HTTP library
-echo - **PyPDF2**: PDF text extraction
-echo - **python-docx**: Word document text extraction
-) > README.md
+) > windows\README_WINDOWS.md
 
-echo [SUCCESS] README.md created!
+echo [SUCCESS] windows\README_WINDOWS.md created!
 
-REM Create start script for Windows
-echo [INFO] Creating start script...
-(
-echo @echo off
-echo echo Starting GPT Neo-Style Text Co-Writer...
-echo echo.
-echo.
-echo REM Check if Python is available
-echo python --version ^>nul 2^>^&1
-echo if %%errorlevel%% neq 0 ^(
-echo     echo [ERROR] Python not found!
-echo     echo Please install Python from https://python.org
-echo     echo Make sure to check 'Add Python to PATH' during installation
-echo     pause
-echo     exit /b 1
-echo ^)
-echo.
-echo REM Check if the main script exists
-echo if not exist "text_co_writer.py" ^(
-echo     echo [ERROR] text_co_writer.py not found!
-echo     echo Please run this script from the project directory.
-echo     pause
-echo     exit /b 1
-echo ^)
-echo.
-echo REM Run the text co-writer
-echo echo [INFO] Starting the text co-writer...
-echo python text_co_writer.py
-echo.
-echo REM If the script exits, pause so user can see any error messages
-echo if %%errorlevel%% neq 0 ^(
-echo     echo.
-echo     echo [ERROR] The program exited with an error.
-echo     echo Check the error message above for details.
-echo     pause
-echo ^) else ^(
-echo     echo.
-echo     echo [INFO] Program finished successfully.
-echo     pause
-echo ^)
-) > start_writer.bat
-echo [SUCCESS] start_writer.bat created!
-
-REM Create troubleshooting guide
+REM Create troubleshooting guide (in windows folder)
 echo [INFO] Creating troubleshooting guide...
 (
 echo # Windows Troubleshooting Guide
@@ -570,7 +475,7 @@ echo.
 echo **Error:** `Permission denied` or `Access denied`
 echo.
 echo **Solution:**
-echo 1. Right-click on `install_windows_fixed.bat`
+echo 1. Right-click on `windows\install_windows_fixed.bat`
 echo 2. Select "Run as administrator"
 echo 3. Click "Yes" when prompted
 echo.
@@ -599,21 +504,6 @@ echo    ```
 echo.
 echo 4. **Check internet connection**
 echo.
-echo ### 4. VS Code Terminal Issues
-echo.
-echo **Problem:** Script stops at first echo
-echo.
-echo **Solutions:**
-echo 1. **Use Command Prompt instead of PowerShell:**
-echo    - Press `Win + R`
-echo    - Type `cmd`
-echo    - Navigate to project folder
-echo    - Run `install_windows_fixed.bat`
-echo.
-echo 2. **Run as Administrator in VS Code:**
-echo    - Right-click VS Code
-echo    - Select "Run as administrator"
-echo.
 echo ## Getting Help
 echo.
 echo If you're still having issues:
@@ -621,10 +511,10 @@ echo.
 echo 1. **Check the error message carefully**
 echo 2. **Try running as Administrator**
 echo 3. **Restart your computer** after installations
-echo 4. **Check Windows Event Viewer** for system errors
-echo 5. **Update Windows** to the latest version
-) > WINDOWS_TROUBLESHOOTING.md
-echo [SUCCESS] WINDOWS_TROUBLESHOOTING.md created!
+echo 4. **Update Windows** to the latest version
+) > windows\WINDOWS_TROUBLESHOOTING.md
+
+echo [SUCCESS] windows\WINDOWS_TROUBLESHOOTING.md created!
 
 REM Final instructions
 echo.
@@ -636,7 +526,7 @@ echo.
 echo Next steps:
 echo 1. Edit config.py to add your API keys ^(optional^)
 echo 2. Start Ollama: ollama serve
-echo 3. Run the writer: start_writer.bat ^(or python text_co_writer.py^)
+echo 3. Run the writer: windows\start_writer.bat ^(or ^".\windows\start_writer.ps1^" in PowerShell^)
 echo 4. Add reference materials to the reference_materials\ folder
 echo.
 echo Available models:
@@ -647,7 +537,12 @@ echo.
 echo Reference materials folder created: reference_materials\
 echo Add your PDF, DOCX, or TXT files there for style inspiration!
 echo.
-echo If you encounter any issues, check WINDOWS_TROUBLESHOOTING.md
+echo If you encounter any issues, check windows\WINDOWS_TROUBLESHOOTING.md
 echo for common solutions and troubleshooting steps.
 echo.
 echo Installation completed successfully!
+
+popd
+endlocal
+
+
