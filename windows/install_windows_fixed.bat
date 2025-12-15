@@ -390,6 +390,7 @@ echo # Default settings
 echo DEFAULT_MODEL = "neural-chat"  # Options: neural-chat, mistral, llama2, gpt-3.5-turbo-instruct
 echo DEFAULT_STYLE = "sci-fi"
 echo DEFAULT_CHARACTER = "cyra"
+echo DEFAULT_LANGUAGE = "english"  ^# Options: english, spanish
 echo.
 echo # Model preferences ^(uncomment to set defaults^)
 echo # PREFERRED_MODELS = ["neural-chat", "mistral", "llama2"]  # Order of preference for local models

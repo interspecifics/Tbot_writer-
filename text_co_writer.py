@@ -19,6 +19,7 @@ except ImportError:
     DEFAULT_MODEL = "neural-chat"
     DEFAULT_STYLE = "sci-fi"
     DEFAULT_CHARACTER = "cyra"
+    DEFAULT_LANGUAGE = "english"
 
 # Reference materials configuration
 REFERENCE_FOLDER = "reference_materials"
@@ -609,8 +610,15 @@ def call_huggingface_model(prompt, model_name, max_tokens=300, temperature=0.3):
     except Exception as e:
         raise Exception(f"Hugging Face API error: {e}")
 
-def co_write(prompt, style, custom_elements=None, writer_character=None, model_name=DEFAULT_MODEL, reference_materials=None):
+def co_write(prompt, style, custom_elements=None, writer_character=None, model_name=DEFAULT_MODEL, reference_materials=None, language: str = "english"):
     instruction = STYLES.get(style.lower(), STYLES["essay"])
+    
+    # Language instruction
+    lang = (language or "english").strip().lower()
+    if lang in ["spanish", "es", "español", "espanol"]:
+        language_instruction = "\n\nLANGUAGE: Write the entire continuation in Spanish (español). Use natural, idiomatic Spanish appropriate to the selected voice and style."
+    else:
+        language_instruction = "\n\nLANGUAGE: Write the entire continuation in English. Use natural, idiomatic English appropriate to the selected voice and style."
     
     # Build writer character description if provided - but don't mention the character name
     character_description = ""
@@ -670,7 +678,7 @@ def co_write(prompt, style, custom_elements=None, writer_character=None, model_n
     
     # Make the prompt focus on continuation rather than complete story creation
     # Put the user's prompt FIRST to prioritize it
-    full_prompt = f"{instruction}{continuation_instruction}{originality_instruction}\n\nUSER'S NARRATIVE TO CONTINUE: {prompt}\n\n{character_description}{elements_description}{reference_context}\n\nFINAL INSTRUCTION: Continue the user's narrative above. Do NOT write about the character - write the continuation of the user's story using the character's voice and style."
+    full_prompt = f"{instruction}{language_instruction}{continuation_instruction}{originality_instruction}\n\nUSER'S NARRATIVE TO CONTINUE: {prompt}\n\n{character_description}{elements_description}{reference_context}\n\nFINAL INSTRUCTION: Continue the user's narrative above. Do NOT write about the character - write the continuation of the user's story using the character's voice and style."
     
     # Find the model provider
     model_provider = None
@@ -845,6 +853,33 @@ def list_available_custom_elements():
     print()
     return all_elements
 
+def list_available_languages():
+    """List available output languages with numbers"""
+    print("\n" + "="*60)
+    print("AVAILABLE OUTPUT LANGUAGES")
+    print("="*60)
+    
+    languages = {1: "english", 2: "spanish"}
+    for idx, name in languages.items():
+        label = "English" if name == "english" else "Spanish / Español"
+        print(f"{idx:2d}. {label}")
+    print()
+    return languages
+
+def get_language_by_number(all_languages, user_input):
+    """Get language by number or name"""
+    try:
+        number = int(user_input)
+        return all_languages.get(number)
+    except ValueError:
+        name = user_input.strip().lower()
+        if name in ["english", "en", "inglés", "ingles"]:
+            return "english"
+        if name in ["spanish", "es", "español", "espanol"]:
+            return "spanish"
+        print(f"Invalid language: {user_input}")
+        return None
+
 def get_style_by_number(all_styles, user_input):
     """Get style by number or name"""
     try:
@@ -947,6 +982,7 @@ OLLAMA_BASE_URL = "http://localhost:11434"
 DEFAULT_MODEL = "neural-chat"  # Options: neural-chat, mistral, llama2, gpt-3.5-turbo-instruct
 DEFAULT_STYLE = "sci-fi"
 DEFAULT_CHARACTER = "cyra"
+DEFAULT_LANGUAGE = "english"  # Options: english, spanish
 
 # Model preferences (uncomment to set defaults)
 # PREFERRED_MODELS = ["neural-chat", "mistral", "llama2"]  # Order of preference for local models
@@ -1046,6 +1082,22 @@ if __name__ == "__main__":
                         print("Switching back to default model: neural-chat")
                         model_name = "neural-chat"
     
+    # Choose output language
+    print(f"\nChoose output language (enter number or name, default: {DEFAULT_LANGUAGE}):")
+    all_languages = list_available_languages()
+    language_input = input().strip()
+    if not language_input:
+        language = DEFAULT_LANGUAGE
+        print(f"Using default language: {DEFAULT_LANGUAGE}")
+    else:
+        selected_language = get_language_by_number(all_languages, language_input)
+        if not selected_language:
+            language = DEFAULT_LANGUAGE
+            print(f"Invalid selection, using default language: {DEFAULT_LANGUAGE}")
+        else:
+            language = selected_language
+            print(f"Selected language: {language}")
+    
     # Get writer character
     print(f"\nChoose a writer character (enter number or name, default: {DEFAULT_CHARACTER}):")
     all_characters = list_available_characters()
@@ -1077,6 +1129,7 @@ if __name__ == "__main__":
     if reference_materials:
         print(f"Loaded {len(reference_materials)} reference material(s)")
     print("Type 'quit' to exit, 'new style' to change style/elements, 'new character' to change character, 'new model' to change model")
+    print("Type 'new language' to switch output language (English/Spanish)")
     print("Type 'reload refs' to reload reference materials, 'reload config' to reload characters/elements")
     print("Type 'status' to show current settings, 'help' for all commands")
     print("="*50)
@@ -1164,6 +1217,23 @@ if __name__ == "__main__":
                 else:
                     print("Invalid model selection. Keeping current model.")
             continue
+        elif prompt.lower() == 'new language':
+            print("\n" + "="*30)
+            print("CHANGING LANGUAGE")
+            print("="*30)
+            all_languages = list_available_languages()
+            print("Choose a language (enter number or name):")
+            language_input = input().strip()
+            if not language_input:
+                print("No input provided. Keeping current language.")
+            else:
+                new_language = get_language_by_number(all_languages, language_input)
+                if new_language:
+                    language = new_language
+                    print(f"Language updated to: {language}")
+                else:
+                    print("Invalid language selection. Keeping current language.")
+            continue
         elif prompt.lower() == 'reload refs':
             print("\n" + "="*30)
             print("RELOADING REFERENCE MATERIALS")
@@ -1182,6 +1252,7 @@ if __name__ == "__main__":
             print(f"Model: {model_name}")
             print(f"Writer Character: {WRITER_CHARACTERS[writer_character]['name']}")
             print(f"Custom Elements: {', '.join(custom_elements)}")
+            print(f"Language: {language}")
             print("="*30)
             continue
         elif prompt.lower() == 'help':
@@ -1192,6 +1263,7 @@ if __name__ == "__main__":
             print("new style - Change the writing style")
             print("new character - Change the writer character")
             print("new model - Change the AI model")
+            print("new language - Change output language (English/Spanish)")
             print("reload refs - Reload reference materials")
             print("reload config - Reload characters and custom elements from files")
             print("status - Show current settings")
@@ -1203,7 +1275,7 @@ if __name__ == "__main__":
             continue
         
         try:
-            continuation = co_write(prompt, style, custom_elements, writer_character, model_name, reference_materials)
+            continuation = co_write(prompt, style, custom_elements, writer_character, model_name, reference_materials, language=language)
             print("\n📝 AI Continuation:\n")
             print(continuation)
         except Exception as e:

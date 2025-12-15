@@ -12,6 +12,7 @@ OLLAMA_BASE_URL = "http://localhost:11434"
 DEFAULT_MODEL = "neural-chat"  # Options: neural-chat, mistral, llama2, gpt-3.5-turbo-instruct
 DEFAULT_STYLE = "sci-fi"
 DEFAULT_CHARACTER = "cyra"
+DEFAULT_LANGUAGE = "english"  # Options: english, spanish
 
 # Model preferences (uncomment to set defaults)
 # PREFERRED_MODELS = ["neural-chat", "mistral", "llama2"]  # Order of preference for local models
